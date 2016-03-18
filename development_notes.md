@@ -23,6 +23,15 @@ Then during "moves" you can not only move around null TRs but you can also flip 
 
 ## Technical details
 
+### Linear Algebra
+
+[Boost uBLAS](http://www.boost.org/doc/libs/1_60_0/libs/numeric/ublas/doc/index.html)
+
+otherwise:
+
+Armadillo.
+
+
 
 ### Data structures
 

@@ -1,5 +1,7 @@
-#include <iostream>  // need this header file to support the C++ I/O system
+#include <iostream>
 #include <boost/program_options.hpp>
+
+#include <design.hpp>
 
 using namespace std; // telling the compiler to use namespace "std",
 		     // where the entire C++ library is declared.
@@ -113,6 +115,7 @@ int main(int argc, char* argv[])
 
   pre_report();
 
+  Design design(ntrials);
   
   return 0;
   

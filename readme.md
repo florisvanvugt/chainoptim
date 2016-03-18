@@ -55,7 +55,7 @@ Parameters:
 
 ## Examples
 
-```./chainseq --ntp 300 --tr 1.6 --ntrials 60 --trial_duration 3```
+```./chainseq --ntp 12 --tr 3.3 --ntrials 2 --trial_duration 2```
 
 
 
