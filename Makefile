@@ -17,11 +17,6 @@ chainseq.o: chainseq.cpp
 	$(CC) -c $(CFLAGS) chainseq.cpp
 
 
-
-readme.c: readme.txt readme2c.py
-	python readme2c.py > readme.c
-
-
 test: chainseq
 	./chainseq --ntp 12 --tr 3.3 --ntrials 2 --trial_duration 2
 
@@ -52,7 +47,6 @@ clean:
 	rm -f *~
 	rm -f readme.html
 	rm -f readme.txt
-	rm -f readme.c
 	rm -f development_notes.html
 
 
