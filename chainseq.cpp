@@ -24,7 +24,8 @@ int ntrials = -1;
 /* The duration of a trial (in # of TRs) */
 int trial_duration = -1;
 
-
+/* THe hypothesised HRF function */
+string hrf;
 
 
 
@@ -33,25 +34,26 @@ void deal_with_cl(int argc, char* argv[])
 /* This deals with parsing the command line arguments */
 {
   
-  int opt;
-
   /* First we define the allowed options */
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help",
      "produce help message")
     ("ntp",
-     po::value<int>(&ntp)->default_value(-1), 
+     po::value<int>(&ntp),
      "number of volume acquisitions")
-    ("optimization",
-     po::value<int>(&opt)->default_value(10), 
-     "optimization level")
-    ("include-path,I",
-     po::value< vector<string> >(), 
-     "include path")
-    ("input-file",
-     po::value< vector<string> >(),
-     "input file")
+    ("tr",
+     po::value<float>(&TR),
+     "TR duration (sec)")
+    ("ntrials",
+     po::value<int>(&ntrials),
+     "number of trials")
+    ("trial_duration",
+     po::value<int>(&trial_duration)->default_value(-1),
+     "duration of a trial (in # of TRs)")
+    ("hrf",
+     po::value<string>(&hrf)->default_value("gam"),
+     "hypothesised HRF function")
     ;
 
   po::variables_map vm;
@@ -62,29 +64,56 @@ void deal_with_cl(int argc, char* argv[])
     cout << desc << "\n";
     exit(EXIT_SUCCESS);
   }
-  
-  if (vm.count("compression")) {
-    cout << "Compression level was set to " 
-	 << vm["compression"].as<int>() << ".\n";
-  } else {
-    cout << "Compression level was not set.\n";
-  } 
+
+  if (!vm.count("ntp")) {
+    printf("You need to set the number of time points (--ntp)\n");
+    exit(EXIT_FAILURE);
+  }
+  if (!vm.count("ntrials")) {
+    printf("You need to set the number of trials (--ntrials))\n");
+    exit(EXIT_FAILURE);
+  }
+  if (!vm.count("tr")) {
+    printf("You need to set the TR duration (--tr)\n");
+    exit(EXIT_FAILURE);
+  }
+  if (!vm.count("trial_duration")) {
+    printf("You need to set the trial duration (--trial_duration)");
+    exit(EXIT_FAILURE);
+  }
+
 }
+
+
+
+
+
+
+void pre_report() 
+/* Prints a report of what we are going to do */
+{
+    printf("----------------------------------------\n");
+    printf("     PARAMETERS               \n");
+    printf("----------------------------------------\n");
+    printf("  # time points:              %d\n",ntp);
+    printf("  TR (sec):                   %f\n",TR);
+    printf("  # trials:                   %d\n",ntrials);
+    printf("  Trial duration (# of TRs):  %d\n",trial_duration);
+    printf("----------------------------------------\n");
+}
+
+
 
 
 
 
 int main(int argc, char* argv[])
 {
-  // Print out a sentence on the screen.
-  // "<<" causes the expression on its right to 
-  // be directed to the device on its left.
-  // "cout" is the standard output device -- the screen.
-  cout << "Hello World!" <<  endl;
-
   deal_with_cl(argc,argv);
+
+  pre_report();
+
   
-  return 0; // returns 0,which indicate the successful	
-  // termination of the "main" function 
+  return 0;
   
 }
