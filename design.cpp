@@ -15,8 +15,10 @@ using namespace std;
 const char *delim = ", ";
 
 
-Design::Design(int ntrials) {
+Design::Design(int ntrials,float tr,int trial_duration) {
   this->ntrials = ntrials;
+  this->tr = tr;
+  this->trial_duration = trial_duration;
   
   // Initialise the ntrials array
   vector<int> nt(ntrials+1);
@@ -64,42 +66,44 @@ void Design::randomise(int n_null_tp)
 
 
 
-vector<float> Design::get_trial_onsets(float tr)
-/* Returns the trial onsets of the given design.
-
-Arguments
-tr : the TR duration (in seconds) 
+vector<float> Design::get_trial_onsets()
+/* 
+   Returns the trial onsets of the given design.
+   
+   Arguments
+   tr : the TR duration (in seconds) 
 */
 {
   vector<float> trialtimes(this->ntrials);
   int preceding_trs = 0;
   for (int i=0; i<this->ntrials; ++i) {
     preceding_trs += this->nulltrs[i];
-    trialtimes[i] = tr*preceding_trs;
+    trialtimes[i] =  this->tr*preceding_trs;
+    preceding_trs += trial_duration;
   }
   return (trialtimes);
 };
 
 
 
-void Design::print_trial_onsets(float tr)
+void Design::print_trial_onsets()
 /* Prints the trial onsets of the given design.
 
 Arguments
 tr : the TR duration (in seconds) 
 */
 {
-  cout<<this->trial_onsets(tr);
+  cout<<this->trial_onsets();
 }
 
 
 
 
-string Design::trial_onsets(float tr)
+string Design::trial_onsets()
 /* Returns the trial onset times for this design. */
 {
   // Source: http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
-  vector<float> vec = this->get_trial_onsets(tr);
+  vector<float> vec = this->get_trial_onsets();
   return floatvec2str(vec,delim);
 }
 
@@ -108,7 +112,7 @@ string Design::trial_onsets(float tr)
 
 
 
-IRF* Design::get_irf(float tr,string hrftype)
+IRF* Design::get_irf(string hrftype)
 /* 
    Return the ideal response function for this design.
    
@@ -119,7 +123,7 @@ IRF* Design::get_irf(float tr,string hrftype)
 {
   IRF *irf;
   if (hrftype=="gam") {
-    irf = new GAM(this->get_trial_onsets(tr));
+    irf = new GAM(this->get_trial_onsets());
   }
   //if (hrftype=="gam") {
   //return 

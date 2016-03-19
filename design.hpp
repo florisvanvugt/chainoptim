@@ -7,15 +7,17 @@ class Design {
 
 private:
   int ntrials;
+  float tr;
+  int trial_duration;
   vector<int> nulltrs;
   
-public:   
+public:
+  Design(int ntrials,float tr,int trial_duration);
   void print();
-  Design(int ntrials);
   void randomise(int n_null_tp);
-  vector<float> get_trial_onsets(float tr);
-  void print_trial_onsets(float tr);
-  string trial_onsets(float tr);
-  IRF* get_irf(float tr,string hrftype);
+  vector<float> get_trial_onsets();
+  void print_trial_onsets();
+  string trial_onsets();
+  IRF* get_irf(string hrftype);
 };
 

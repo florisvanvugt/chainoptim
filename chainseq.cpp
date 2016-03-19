@@ -1,8 +1,11 @@
 #include <iostream>
+#include <fstream>
 #include <boost/program_options.hpp>
 #include <cstdlib>
 
 #include <design.hpp>
+#include <aux.hpp>
+
 
 using namespace std; 
 
@@ -124,16 +127,29 @@ int main(int argc, char* argv[])
 
   /* Preliminaries */
   srand (random_seed);
-    
-  Design design(ntrials);
+
+  Design design(ntrials,TR,trial_duration);
 
   int n_null_trs = ntp-(ntrials*trial_duration);
   design.randomise(n_null_trs);
 
   design.print();
   printf("Trial onsets:\n");
-  design.print_trial_onsets(TR);
+  design.print_trial_onsets();
   printf("\n");
+
+  IRF* irf = design.get_irf(hrf);
+  vector<float> scantimes = scalmult(arange(0,ntp),TR);
+  cout<< "Scan times:" << floatvec2str(scantimes," ") << "\n";
+  vector<float> scans = irf->evaluate(scantimes);
+  cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
+
+  // Write to a file
+  ofstream myfile;
+  myfile.open ("scanBOLD.txt");
+  myfile << "scan.BOLD\n" << floatvec2str(scans,"\n");
+  myfile.close();
+
   
   return 0;
   

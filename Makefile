@@ -23,7 +23,11 @@ $(objects): %.o: %.cpp
 
 
 test: chainseq
+	./chainseq --ntp 50 --tr 1.6 --ntrials 3 --trial_duration 2
+
+simpletest: chainseq
 	./chainseq --ntp 12 --tr 3.3 --ntrials 2 --trial_duration 2
+
 
 
 run: chainseq

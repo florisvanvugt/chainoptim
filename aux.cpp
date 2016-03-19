@@ -42,3 +42,33 @@ string intvec2str(vector<int> vec,const char* delim) {
   return oss.str();
     
 }
+
+
+
+
+
+
+vector<int> arange(int start, int end)
+/* 
+   Returns the vector 
+   start, start+1, start+2, start+3, ..., end
+*/
+{
+  vector<int> v(end-start);
+  for (int i=start; i<end; ++i) {
+    v[i-start]=i;
+  }
+  return v;
+}
+
+
+vector<float> scalmult(vector<int> vect, float scalar) 
+/* Scalar multiplication of an int vector to yield a float vector. */
+{
+  vector<float> v(vect.size());
+  for (unsigned i=0; i<vect.size(); ++i) {
+    v[i] = vect[i]*scalar;
+  }
+  return v;
+}
+
