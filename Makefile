@@ -3,18 +3,15 @@ default: run
 CC = g++
 CFLAGS=-I. -lboost_program_options -Wall
 
+objects = design.o chainseq.o
 
 
 chainseq: design.o chainseq.o
 # Linking
 	$(CC) -o chainseq design.o chainseq.o $(CFLAGS)
 
-
-design.o: design.cpp
-	$(CC) -c $(CFLAGS) design.cpp
-
-chainseq.o: chainseq.cpp
-	$(CC) -c $(CFLAGS) chainseq.cpp
+$(objects): %.o: %.cpp
+	$(CC) -c $(CFLAGS) $< -o $@
 
 
 test: chainseq

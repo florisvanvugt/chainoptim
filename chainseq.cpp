@@ -1,10 +1,10 @@
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <cstdlib>
 
 #include <design.hpp>
 
-using namespace std; // telling the compiler to use namespace "std",
-		     // where the entire C++ library is declared.
+using namespace std; 
 
 namespace po = boost::program_options; // For command-line options
 
@@ -15,19 +15,23 @@ const char *VERSION = "0.01";
 
 
 /* The number of volumes (measurements) */
-int ntp = -1;
+int ntp;
 
 /* The TR duration (acquisition time for a single volume in seconds) */
-float TR = -1;
+float TR;
 
 /* The number of trials */
-int ntrials = -1;
+int ntrials;
 
 /* The duration of a trial (in # of TRs) */
-int trial_duration = -1;
+int trial_duration;
 
 /* THe hypothesised HRF function */
-string hrf;
+string hrf = "gam";
+
+
+/* initialize random seed: */
+unsigned random_seed = time(NULL);
 
 
 
@@ -56,6 +60,9 @@ void deal_with_cl(int argc, char* argv[])
     ("hrf",
      po::value<string>(&hrf)->default_value("gam"),
      "hypothesised HRF function")
+    ("randomseed",
+     po::value<unsigned>(&random_seed),
+     "seed for the random number generator")
     ;
 
   po::variables_map vm;
@@ -115,7 +122,15 @@ int main(int argc, char* argv[])
 
   pre_report();
 
+  /* Preliminaries */
+  srand (random_seed);
+    
   Design design(ntrials);
+
+  int n_null_trs = ntp-(ntrials*trial_duration);
+  design.randomise(n_null_trs);
+  
+  design.print();
   
   return 0;
   

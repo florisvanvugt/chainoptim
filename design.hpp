@@ -1,13 +1,17 @@
-using namespace std; // telling the compiler to use namespace "std",
-		     // where the entire C++ library is declared.
+#include <vector>
+
+
+using namespace std;
 
 class Design {
 
 private:
   int ntrials;
+  vector<int> nulltrs;
   
 public:   
-  string print();
+  void print();
   Design(int ntrials);
+  void randomise(int n_null_tp);
 };
 
