@@ -13,5 +13,8 @@ public:
   void print();
   Design(int ntrials);
   void randomise(int n_null_tp);
+  vector<float> get_trial_onsets(float tr);
+  void print_trial_onsets(float tr);
+  string trial_onsets(float tr);
 };
 

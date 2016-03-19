@@ -7,13 +7,17 @@ This is an experimental design.
 #include <vector>
 #include <stdio.h>
 #include <cstdlib>
+#include "aux.cpp"
 
 using namespace std;
 
 
+const char *delim = ", ";
+
+
 Design::Design(int ntrials) {
   this->ntrials = ntrials;
-
+  
   // Initialise the ntrials array
   vector<int> nt(ntrials+1);
   this->nulltrs = nt;
@@ -23,12 +27,9 @@ Design::Design(int ntrials) {
 void Design::print()
 /* Print the contents of this design */
 {
-  printf("(%d trials) [",this->ntrials);
-  vector<int>::const_iterator i;
-  for (i=this->nulltrs.begin(); i!=this->nulltrs.end(); ++i) {
-    cout << (*i) << ",";
-  }
-  printf("]\n");
+  cout << "(" << this->ntrials << " trials) [";
+  cout << intvec2str(this->nulltrs,delim);
+  cout << "]\n";
 }
 
 
@@ -59,3 +60,44 @@ void Design::randomise(int n_null_tp)
 }
 
 
+
+
+
+
+vector<float> Design::get_trial_onsets(float tr)
+/* Returns the trial onsets of the given design.
+
+Arguments
+tr : the TR duration (in seconds) 
+*/
+{
+  vector<float> trialtimes(this->ntrials);
+  int preceding_trs = 0;
+  for (int i=0; i<this->ntrials; ++i) {
+    preceding_trs += this->nulltrs[i];
+    trialtimes[i] = tr*preceding_trs;
+  }
+  return (trialtimes);
+};
+
+
+
+void Design::print_trial_onsets(float tr)
+/* Prints the trial onsets of the given design.
+
+Arguments
+tr : the TR duration (in seconds) 
+*/
+{
+  cout<<this->trial_onsets(tr);
+}
+
+
+
+
+string Design::trial_onsets(float tr)
+{
+  // Source: http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
+  vector<float> vec = this->get_trial_onsets(tr);
+  return floatvec2str(vec,delim);
+}

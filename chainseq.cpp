@@ -129,8 +129,11 @@ int main(int argc, char* argv[])
 
   int n_null_trs = ntp-(ntrials*trial_duration);
   design.randomise(n_null_trs);
-  
+
   design.print();
+  printf("Trial onsets:\n");
+  design.print_trial_onsets(TR);
+  printf("\n");
   
   return 0;
   

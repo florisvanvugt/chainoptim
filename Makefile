@@ -6,7 +6,7 @@ CFLAGS=-I. -lboost_program_options -Wall
 objects = design.o chainseq.o
 
 
-chainseq: design.o chainseq.o
+chainseq: design.o chainseq.o aux.o
 # Linking
 	$(CC) -o chainseq design.o chainseq.o $(CFLAGS)
 
