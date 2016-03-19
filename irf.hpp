@@ -1,9 +1,9 @@
 
 /* This is the Ideal Response Function (IRF) for a particular design. */
 
-#include <vector>
+#include <boost/numeric/ublas/vector.hpp>
 
-using namespace std;
+using namespace boost::numeric::ublas;
 
 /* This is an abstract class that tells us */
 class IRF {

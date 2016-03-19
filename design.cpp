@@ -4,13 +4,12 @@ This is an experimental design.
 
 #include <iostream>
 #include "design.hpp"
-#include <vector>
 #include <stdio.h>
 #include <cstdlib>
 #include "aux.hpp"
 
-using namespace std;
 
+using namespace boost::numeric::ublas;
 
 const char *delim = ", ";
 
@@ -29,9 +28,9 @@ Design::Design(int ntrials,float tr,int trial_duration) {
 void Design::print()
 /* Print the contents of this design */
 {
-  cout << "(" << this->ntrials << " trials) [";
-  cout << intvec2str(this->nulltrs,delim);
-  cout << "]\n";
+  std::cout << "(" << this->ntrials << " trials) [";
+  std::cout << intvec2str(this->nulltrs,delim);
+  std::cout << "]\n";
 }
 
 
@@ -93,13 +92,13 @@ Arguments
 tr : the TR duration (in seconds) 
 */
 {
-  cout<<this->trial_onsets();
+  std::cout<<this->trial_onsets();
 }
 
 
 
 
-string Design::trial_onsets()
+std::string Design::trial_onsets()
 /* Returns the trial onset times for this design. */
 {
   // Source: http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
@@ -112,7 +111,7 @@ string Design::trial_onsets()
 
 
 
-IRF* Design::get_irf(string hrftype)
+IRF* Design::get_irf(std::string hrftype)
 /* 
    Return the ideal response function for this design.
    
@@ -129,4 +128,18 @@ IRF* Design::get_irf(string hrftype)
   //return 
   //  }
   return (irf);
+}
+
+
+
+
+matrix<double> get_matrix(std::string hrftype) {
+  /* Get the design matrix for this design */
+  
+}
+
+
+
+float Design::get_efficiency(std::string hrftype) {
+  return 0.0; // TODO
 }

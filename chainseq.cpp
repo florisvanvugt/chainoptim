@@ -1,13 +1,15 @@
 #include <iostream>
 #include <fstream>
-#include <boost/program_options.hpp>
 #include <cstdlib>
+
+#include <boost/program_options.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 
 #include <design.hpp>
 #include <aux.hpp>
 
 
-using namespace std; 
+using namespace boost::numeric::ublas;
 
 namespace po = boost::program_options; // For command-line options
 
@@ -30,7 +32,7 @@ int ntrials;
 int trial_duration;
 
 /* THe hypothesised HRF function */
-string hrf = "gam";
+std::string hrf = "gam";
 
 
 /* initialize random seed: */
@@ -61,7 +63,7 @@ void deal_with_cl(int argc, char* argv[])
      po::value<int>(&trial_duration)->default_value(-1),
      "duration of a trial (in # of TRs)")
     ("hrf",
-     po::value<string>(&hrf)->default_value("gam"),
+     po::value<std::string>(&hrf)->default_value("gam"),
      "hypothesised HRF function")
     ("randomseed",
      po::value<unsigned>(&random_seed),
@@ -73,7 +75,7 @@ void deal_with_cl(int argc, char* argv[])
   po::notify(vm);    
   
   if (vm.count("help")) {
-    cout << desc << "\n";
+    std::cout << desc << "\n";
     exit(EXIT_SUCCESS);
   }
 
@@ -140,15 +142,19 @@ int main(int argc, char* argv[])
 
   IRF* irf = design.get_irf(hrf);
   vector<float> scantimes = scalmult(arange(0,ntp),TR);
-  cout<< "Scan times:" << floatvec2str(scantimes," ") << "\n";
+  std::cout<< "Scan times:" << floatvec2str(scantimes," ") << "\n";
   vector<float> scans = irf->evaluate(scantimes);
-  cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
+  std::cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
 
   // Write to a file
-  ofstream myfile;
+  std::ofstream myfile;
   myfile.open ("scanBOLD.txt");
   myfile << "scan.BOLD\n" << floatvec2str(scans,"\n");
   myfile.close();
+
+
+  // Now let's calculate efficiency
+  //design.get_efficiency();
 
   
   return 0;

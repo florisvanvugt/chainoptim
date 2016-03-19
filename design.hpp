@@ -1,7 +1,9 @@
-#include <vector>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+
 #include "irf.hpp"
 
-using namespace std;
+using namespace boost::numeric::ublas;
 
 class Design {
 
@@ -17,7 +19,9 @@ public:
   void randomise(int n_null_tp);
   vector<float> get_trial_onsets();
   void print_trial_onsets();
-  string trial_onsets();
-  IRF* get_irf(string hrftype);
+  std::string trial_onsets();
+  IRF* get_irf(std::string hrftype); // This should probably be private later on
+  float get_efficiency(std::string hrftype);
+  matrix<double> get_matrix(std::string hrftype);
 };
 

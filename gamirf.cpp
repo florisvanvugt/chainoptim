@@ -4,9 +4,9 @@
    This is the Ideal Response Function (IRF) for a particular design. 
 */
 
-#include <vector>
 #include "irf.hpp"
 #include <math.h>
+#include <boost/numeric/ublas/vector.hpp>
 
 
 GAM::GAM(vector<float> trialtimes) {

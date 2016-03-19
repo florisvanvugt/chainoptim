@@ -2,11 +2,12 @@
 
 #include <sstream>
 #include <iterator>
-#include <vector>
+#include <boost/numeric/ublas/vector.hpp>
 
-using namespace std;
+using namespace boost::numeric::ublas;
 
-string floatvec2str(vector<float> vec,const char* delim) {
+
+std::string floatvec2str(vector<float> vec,const char* delim) {
   // Source
   // http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
   
@@ -17,7 +18,7 @@ string floatvec2str(vector<float> vec,const char* delim) {
       std::copy(vec.begin(), vec.end()-1,
 		std::ostream_iterator<float>(oss, delim));
       // Now add the last element with no delimiter
-      oss << vec.back();
+      oss << *vec.rbegin();
     }
   return oss.str();
     
@@ -26,7 +27,7 @@ string floatvec2str(vector<float> vec,const char* delim) {
 
 
 
-string intvec2str(vector<int> vec,const char* delim) {
+std::string intvec2str(vector<int> vec,const char* delim) {
   // Source
   // http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
   
@@ -37,7 +38,7 @@ string intvec2str(vector<int> vec,const char* delim) {
       std::copy(vec.begin(), vec.end()-1,
 		std::ostream_iterator<int>(oss, delim));
       // Now add the last element with no delimiter
-      oss << vec.back();
+      oss << *vec.rbegin();
     }
   return oss.str();
     
