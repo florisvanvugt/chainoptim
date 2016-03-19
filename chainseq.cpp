@@ -9,7 +9,7 @@
 #include <aux.hpp>
 
 
-using namespace boost::numeric::ublas;
+namespace ublas = boost::numeric::ublas;
 
 namespace po = boost::program_options; // For command-line options
 
@@ -35,7 +35,7 @@ int trial_duration;
 std::string hrf = "gam";
 
 /* The number of orthogonal polynomials to stick into the design matrix */
-int npolort = 4;
+int npolort = 3;
 
 
 /* initialize random seed: */
@@ -112,14 +112,16 @@ void deal_with_cl(int argc, char* argv[])
 void pre_report() 
 /* Prints a report of what we are going to do */
 {
-    printf("----------------------------------------\n");
-    printf("     PARAMETERS               \n");
-    printf("----------------------------------------\n");
-    printf("  # time points:              %d\n",ntp);
-    printf("  TR (sec):                   %f\n",TR);
-    printf("  # trials:                   %d\n",ntrials);
-    printf("  Trial duration (# of TRs):  %d\n",trial_duration);
-    printf("----------------------------------------\n");
+  std::cout << "----------------------------------------\n";
+  std::cout << "     PARAMETERS               \n";
+  std::cout << "----------------------------------------\n";
+  std::cout << "  # time points:              "<<ntp<<"\n";
+  std::cout << "  TR (sec):                   "<<TR<<"\n";
+  std::cout << "  # trials:                   "<<ntrials<<"\n";
+  std::cout << "  Trial duration (# of TRs):  "<<trial_duration<<"\n";
+  std::cout << "  Hypothesis HRF:             "<<hrf<<"\n";
+  std::cout << "  # of orthogonal polys:      "<<npolort<<"\n";
+  std::cout << "----------------------------------------\n";
 }
 
 
@@ -147,9 +149,9 @@ int main(int argc, char* argv[])
   printf("\n");
 
   IRF* irf = design.get_irf(hrf);
-  vector<float> scantimes = scalmult(arange(0,ntp),TR);
+  ublas::vector<float> scantimes = scalmult(arange(0,ntp),TR);
   std::cout<< "Scan times:" << floatvec2str(scantimes," ") << "\n";
-  vector<float> scans = irf->evaluate(scantimes);
+  ublas::vector<float> scans = irf->evaluate(scantimes);
   std::cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
 
   // Write to a file
@@ -157,10 +159,15 @@ int main(int argc, char* argv[])
   myfile.open ("scanBOLD.txt");
   myfile << "scan.BOLD\n" << floatvec2str(scans,"\n");
   myfile.close();
+  
+  ublas::matrix<float> mat = polort(npolort,scantimes);
+  char *outf = (char*)"mat.txt";
+  char *delim = (char*)" ";
+  matrix_to_file(mat,outf,delim);
+  //ublas::matrix<float> mat = design.get_matrix(hrf,ntp,TR,npolort);
 
   // Now let's calculate efficiency
-  std::cout << "Efficiency: " <<design.get_efficiency(hrf,ntp,TR,npolort);
-
+  std::cout << "Efficiency: " << design.get_efficiency(hrf,ntp,TR,npolort)<<"\n";
   
   return 0;
   

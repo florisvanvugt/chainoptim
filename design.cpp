@@ -35,13 +35,16 @@ void Design::print()
 
 
 
+
+
+
 void Design::randomise(int n_null_tp)
 /* 
    Randomly initialise this design by inserting 
    the number of null TRs at random positions.
 */
 {
-  printf("Randomising %d trials\n",n_null_tp);
+  std::cout<<"Randomly allocating "<<n_null_tp<<" null TRs\n";
 
   // First make sure we empty the null TR list (just in case)
   for (int i=0; i<this->ntrials+1; ++i) {
@@ -59,6 +62,8 @@ void Design::randomise(int n_null_tp)
   // Now sum(this->nulltrs) should equal n_null_tp
   
 }
+
+
 
 
 
@@ -133,10 +138,14 @@ IRF* Design::get_irf(std::string hrftype)
 
 
 
+
+
+
+
 ublas::matrix<double> Design::get_matrix(std::string hrftype,
-				  int ntp,
-				  float TR,
-				  int npolort) 
+					 int ntp,
+					 float TR,
+					 int npolort) 
 /* 
    Get the design matrix for this design 
 
@@ -155,17 +164,16 @@ ublas::matrix<double> Design::get_matrix(std::string hrftype,
   //std::cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
 
   /* Now get the remaining orthogonal polynomials */
-  ublas::matrix<float> X;
+  ublas::matrix<float> X = polort(npolort,scantimes);
+  // Stick our regressor of interest into the design matrix first column
+  for (unsigned i=0; i<scans.size(); ++i) {
+    X(i,0) = scans[i];
+  }
 
-  // Legendre polynomials:
-  // http://www.boost.org/doc/libs/1_46_1/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/legendre.html
-  // TODO
-
-  /* Combine them into a matrix */
-  // TODO
   return X;
   
 }
+
 
 
 
@@ -180,5 +188,49 @@ float Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
    npolort : number of orthogonal polynomials to use
  */
 {
-  return 0.0; // TODO
+  /* Get our design matrix */
+  ublas::matrix<float> X = this->get_matrix(hrftype,ntp,TR,npolort);
+
+  /* Now perform the statistical magic of inverting and all. */
+  float eff = 0.0;
+
+  // Now let's get the efficiency... exciting!
+  /* 
+     Definition of efficiency:
+     https://afni.nimh.nih.gov/pub/dist/edu/2007_11_extra_3day/pdf_handouts/ExptDsgn.pdf 
+  */
+
+  // Define the contrast vector
+  //# the contrast: for now we're just interested in the regressor associated with our neural activity.
+  ublas::vector<float> contr(npolort+2);
+  for (int i=0; i<npolort+2; ++i) {
+    if (i==0) { 
+      contr[i]=1; 
+    } else { 
+      contr[i]=0; 
+    };
+  };
+
+  // Compute X'X
+  ublas::matrix<float> XX = ublas::prod(ublas::trans(X),X);  
+
+  //std::cout<<"made XX";
+  //matrix_to_file(XX,(char*)"tmp.XX.txt",(char*)" ");
+
+  // Now invert XX
+  ublas::matrix<float> XXinv(XX.size1(),XX.size2());
+  bool res = MInvBoost(XX,XXinv); //= ublas::invert(XX);
+  if (not res) {
+    //std::cout<<"Error inverting matrix.\n";
+    exit(EXIT_FAILURE);
+  }
+  //  std::cout<<"inverted XX";
+
+  ublas::vector<float> XXinvc = ublas::prod(XXinv,contr);
+
+  float nsd = sqrt( ublas::inner_prod(contr,XXinvc) );
+  eff = 1/nsd;
+
+  return eff;
+
 }
