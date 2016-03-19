@@ -96,8 +96,12 @@ tr : the TR duration (in seconds)
 
 
 string Design::trial_onsets(float tr)
+/* Returns the trial onset times for this design. */
 {
   // Source: http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
   vector<float> vec = this->get_trial_onsets(tr);
   return floatvec2str(vec,delim);
 }
+
+
+
