@@ -108,7 +108,21 @@ string Design::trial_onsets(float tr)
 
 
 
-IdealResponse Design::get_irf(string irftype)
-  /* Return the ideal response function for this design */
+IRF* Design::get_irf(float tr,string hrftype)
+/* 
+   Return the ideal response function for this design.
+   
+   Arguments
+   tr : TR duration (in seconds)
+   hrftype : type of HRF hypothesised (e.g. GAM)
+*/
 {
+  IRF *irf;
+  if (hrftype=="gam") {
+    irf = new GAM(this->get_trial_onsets(tr));
+  }
+  //if (hrftype=="gam") {
+  //return 
+  //  }
+  return (irf);
 }

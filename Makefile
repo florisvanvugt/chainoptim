@@ -1,22 +1,24 @@
 default: run
 
-CC = g++
-CFLAGS=-I. -Wall
-LDFLAGS=-lboost_program_options
+CC      = g++
+CFLAGS  = -I. -Wall
+LDFLAGS = -lboost_program_options
 
-objects = aux.o design.o chainseq.o
+objects = gamirf.o  aux.o design.o chainseq.o
 
 
-chainseq: design.o chainseq.o aux.o
+chainseq: $(objects)
 # Linking
 	$(CC) -o chainseq $(objects) $(LDFLAGS)
 
+# Some dependencies
+design.o: aux.o irf.hpp gamirf.o
+
+#gamirf.o: irf.o
 
 $(objects): %.o: %.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
-# Some dependencies
-design.o: aux.o irf.hpp
 
 
 
