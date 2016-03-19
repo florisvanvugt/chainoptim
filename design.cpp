@@ -7,7 +7,7 @@ This is an experimental design.
 #include <vector>
 #include <stdio.h>
 #include <cstdlib>
-#include "aux.cpp"
+#include "aux.hpp"
 
 using namespace std;
 
@@ -105,3 +105,10 @@ string Design::trial_onsets(float tr)
 
 
 
+
+
+
+IdealResponse Design::get_irf(string irftype)
+  /* Return the ideal response function for this design */
+{
+}

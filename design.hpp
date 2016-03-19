@@ -1,5 +1,5 @@
 #include <vector>
-
+#include "irf.hpp"
 
 using namespace std;
 
@@ -16,5 +16,6 @@ public:
   vector<float> get_trial_onsets(float tr);
   void print_trial_onsets(float tr);
   string trial_onsets(float tr);
+  IdealResponse get_irf(string irftype);
 };
 
