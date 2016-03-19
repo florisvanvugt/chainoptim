@@ -160,10 +160,6 @@ int main(int argc, char* argv[])
   myfile << "scan.BOLD\n" << floatvec2str(scans,"\n");
   myfile.close();
   
-  ublas::matrix<float> mat = polort(npolort,scantimes);
-  char *outf = (char*)"mat.txt";
-  char *delim = (char*)" ";
-  matrix_to_file(mat,outf,delim);
   //ublas::matrix<float> mat = design.get_matrix(hrf,ntp,TR,npolort);
 
   // Now let's calculate efficiency

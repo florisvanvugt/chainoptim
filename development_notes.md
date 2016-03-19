@@ -23,6 +23,13 @@ Then during "moves" you can not only move around null TRs but you can also flip 
 
 ## Technical details
 
+
+### Comparing against 3dDeconvolve
+
+```3dDeconvolve -nodata 50 1.6 -polort 3 -num_stimts 1 -stim_times 1 '1D: 19.2 40 57.6' GAM```
+
+
+
 ### Linear Algebra
 
 [Boost uBLAS](http://www.boost.org/doc/libs/1_60_0/libs/numeric/ublas/doc/index.html)

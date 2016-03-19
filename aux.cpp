@@ -158,6 +158,16 @@ ublas::matrix<float> polort(int npolort, ublas::vector<float> times)
 
 
 
+/* 
+
+   For testing, code to output the polort matrix to a file:
+   
+   ublas::matrix<float> mat = polort(npolort,scantimes);
+   char *outf = (char*)"mat.txt";
+   char *delim = (char*)" ";
+   matrix_to_file(mat,outf,delim);
+
+*/
 
 
 
