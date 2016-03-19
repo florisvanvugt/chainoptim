@@ -31,8 +31,11 @@ int ntrials;
 /* The duration of a trial (in # of TRs) */
 int trial_duration;
 
-/* THe hypothesised HRF function */
+/* The hypothesised HRF function */
 std::string hrf = "gam";
+
+/* The number of orthogonal polynomials to stick into the design matrix */
+int npolort = 4;
 
 
 /* initialize random seed: */
@@ -60,11 +63,14 @@ void deal_with_cl(int argc, char* argv[])
      po::value<int>(&ntrials),
      "number of trials")
     ("trial_duration",
-     po::value<int>(&trial_duration)->default_value(-1),
+     po::value<int>(&trial_duration),
      "duration of a trial (in # of TRs)")
     ("hrf",
      po::value<std::string>(&hrf)->default_value("gam"),
      "hypothesised HRF function")
+    ("polort",
+     po::value<int>(&npolort)->default_value(npolort),
+     "number of orthogonal Legendre polynomials to use")
     ("randomseed",
      po::value<unsigned>(&random_seed),
      "seed for the random number generator")
@@ -152,9 +158,8 @@ int main(int argc, char* argv[])
   myfile << "scan.BOLD\n" << floatvec2str(scans,"\n");
   myfile.close();
 
-
   // Now let's calculate efficiency
-  //design.get_efficiency();
+  std::cout << "Efficiency: " <<design.get_efficiency(hrf,ntp,TR,npolort);
 
   
   return 0;

@@ -21,7 +21,7 @@ public:
   void print_trial_onsets();
   std::string trial_onsets();
   IRF* get_irf(std::string hrftype); // This should probably be private later on
-  float get_efficiency(std::string hrftype);
-  matrix<double> get_matrix(std::string hrftype);
+  float get_efficiency(std::string hrftype,int ntp,float TR,int npolort);
+  matrix<double> get_matrix(std::string hrftype,int ntp,float TR,int npolort);
 };
 

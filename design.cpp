@@ -9,7 +9,7 @@ This is an experimental design.
 #include "aux.hpp"
 
 
-using namespace boost::numeric::ublas;
+namespace ublas = boost::numeric::ublas;
 
 const char *delim = ", ";
 
@@ -20,7 +20,7 @@ Design::Design(int ntrials,float tr,int trial_duration) {
   this->trial_duration = trial_duration;
   
   // Initialise the ntrials array
-  vector<int> nt(ntrials+1);
+  ublas::vector<int> nt(ntrials+1);
   this->nulltrs = nt;
 }
 
@@ -65,7 +65,7 @@ void Design::randomise(int n_null_tp)
 
 
 
-vector<float> Design::get_trial_onsets()
+ublas::vector<float> Design::get_trial_onsets()
 /* 
    Returns the trial onsets of the given design.
    
@@ -73,7 +73,7 @@ vector<float> Design::get_trial_onsets()
    tr : the TR duration (in seconds) 
 */
 {
-  vector<float> trialtimes(this->ntrials);
+  ublas::vector<float> trialtimes(this->ntrials);
   int preceding_trs = 0;
   for (int i=0; i<this->ntrials; ++i) {
     preceding_trs += this->nulltrs[i];
@@ -102,7 +102,7 @@ std::string Design::trial_onsets()
 /* Returns the trial onset times for this design. */
 {
   // Source: http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
-  vector<float> vec = this->get_trial_onsets();
+  ublas::vector<float> vec = this->get_trial_onsets();
   return floatvec2str(vec,delim);
 }
 
@@ -133,13 +133,52 @@ IRF* Design::get_irf(std::string hrftype)
 
 
 
-matrix<double> get_matrix(std::string hrftype) {
-  /* Get the design matrix for this design */
+ublas::matrix<double> Design::get_matrix(std::string hrftype,
+				  int ntp,
+				  float TR,
+				  int npolort) 
+/* 
+   Get the design matrix for this design 
+
+   Arguments
+   hrftype : hypothesised HRF (e.g. "gam")
+   ntp : number of time points (scans)
+   TR : duration of volume acquisition (in seconds)
+   npolort : number of orthogonal polynomials to use
+*/
+{
+  /* First get the regressor of interest, namely the predicted BOLD response */
+  IRF* irf = this->get_irf(hrftype);
+  ublas::vector<float> scantimes = scalmult(arange(0,ntp),TR);
+  //std::cout<< "Scan times:" << floatvec2str(scantimes," ") << "\n";
+  ublas::vector<float> scans = irf->evaluate(scantimes);
+  //std::cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
+
+  /* Now get the remaining orthogonal polynomials */
+  ublas::matrix<float> X;
+
+  // Legendre polynomials:
+  // http://www.boost.org/doc/libs/1_46_1/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/legendre.html
+  // TODO
+
+  /* Combine them into a matrix */
+  // TODO
+  return X;
   
 }
 
 
 
-float Design::get_efficiency(std::string hrftype) {
+float Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
+/* 
+   Calculate the efficiecny of this design.
+
+   Arguments
+   hrftype : hypothesised HRF (e.g. "gam")
+   ntp : number of time points (scans)
+   TR : duration of volume acquisition (in seconds)
+   npolort : number of orthogonal polynomials to use
+ */
+{
   return 0.0; // TODO
 }
