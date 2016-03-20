@@ -31,13 +31,13 @@ void Chain::run() {
   int n_null_trs = ntp-(this->ntrials*this->trial_duration);
   design.randomise(n_null_trs);
 
-  //design.print();
-  //printf("Trial onsets:\n");
-  //design.print_trial_onsets();
-  //printf("\n");
-  //ublas::matrix<float> mat = design.get_matrix(hrf,ntp,TR,npolort);
-
   this->efficiency = design.get_efficiency(this->hrftype,this->ntp,this->TR,this->npolort);
+
+  // TODO: get possible moves
+
+  // Decide which moves improve
+
+  // Perform the move...
   
 }
 
