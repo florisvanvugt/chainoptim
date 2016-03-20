@@ -12,6 +12,14 @@
 #include <design.hpp>
 //class Design; // Forward declaration: just tell them that this exists.
 
+
+typedef struct StepResult {
+  int n_move_opportunities;
+  int n_improving_moves;
+  Move performed_move;
+} StepResult;
+
+
 class Chain {
 
 private:
@@ -22,11 +30,14 @@ private:
   int npolort;
   int trial_duration;
   std::string hrftype;
+  StepResult step( Design *current );
 
 public:
   Chain(int ntrials,int ntp,float TR,int trial_duration,int npolort,std::string hrftype);
-  Design run();
+  Design run(int maxiter);
 
 };
+
+
 
 

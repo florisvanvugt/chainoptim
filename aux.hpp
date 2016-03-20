@@ -16,3 +16,4 @@ void matrix_to_file(ublas::matrix<double> mat, char* fname, char* delim);
 
 bool MInvBoost(matrix<double> InputMatrix, matrix<double> &InverseMatrix);
 
+int randint(int range);

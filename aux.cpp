@@ -220,3 +220,9 @@ bool MInvBoost(ublas::matrix<double> InputMatrix, ublas::matrix<double> &Inverse
 
 
 
+int randint(int range)
+/* Returns a random int in the range [ 0..(range-1) ] */
+{
+  // http://www.cplusplus.com/reference/cstdlib/rand/
+  return rand()%range;
+}

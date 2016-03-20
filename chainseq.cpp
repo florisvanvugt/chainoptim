@@ -37,6 +37,9 @@ std::string hrf = "gam";
 /* The number of orthogonal polynomials to stick into the design matrix */
 int npolort = 3;
 
+/* The maximum number of iterations we will try, after which we terminate the chain. (-1 means there is no maximum) */
+int maxiter = -1;
+
 
 /* initialize random seed: */
 unsigned random_seed = time(NULL);
@@ -71,6 +74,9 @@ void deal_with_cl(int argc, char* argv[])
     ("polort",
      po::value<int>(&npolort)->default_value(npolort),
      "number of orthogonal Legendre polynomials to use")
+    ("maxiter",
+     po::value<int>(&maxiter),
+     "maximum number of iterations to perform")
     ("randomseed",
      po::value<unsigned>(&random_seed),
      "seed for the random number generator")
@@ -139,7 +145,7 @@ int main(int argc, char* argv[])
   srand (random_seed);
 
   Chain chain(ntrials,ntp,TR,trial_duration,npolort,hrf);
-  chain.run();
+  chain.run(maxiter);
   
   /*
   Design design(ntrials,TR,trial_duration);
