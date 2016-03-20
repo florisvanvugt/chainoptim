@@ -42,6 +42,7 @@ public:
   IRF* get_irf(std::string hrftype); // This should probably be private later on
   double get_efficiency(std::string hrftype,int ntp,float TR,int npolort);
   matrix<double> get_matrix(std::string hrftype,int ntp,float TR,int npolort);
+  void to_afni_file(const char* fname);
   
   std::vector<Move> find_moves(std::string hrf,int ntp,int npolort);
   Design* move(int location,int direction);

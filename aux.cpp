@@ -173,8 +173,15 @@ ublas::matrix<double> polort(int npolort, ublas::vector<double> times)
 
 
 
-void matrix_to_file(ublas::matrix<double> mat, char* fname, char* delim) 
-/* Write the matrix to a file */
+void matrix_to_file(ublas::matrix<double> mat,const char* fname,char* delim) 
+/* Write the matrix to a file
+   
+   Arguments
+   mat : the matrix to be written to file
+   fname : the filename
+   delim : the column-separator. 
+   the row separator is by default the newline character.
+ */
 {
   std::ofstream dat(fname);
   for (unsigned i = 0; i < mat.size1() ; i++) {

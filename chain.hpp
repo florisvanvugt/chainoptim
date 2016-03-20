@@ -34,8 +34,8 @@ private:
 
 public:
   Chain(int ntrials,int ntp,float TR,int trial_duration,int npolort,std::string hrftype);
-  Design run(int maxiter,bool verbose);
-
+  bool run(int maxiter,bool verbose);
+  Design * result_design;
 };
 
 

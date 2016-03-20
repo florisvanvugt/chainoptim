@@ -85,7 +85,7 @@ StepResult Chain::step(Design* current,bool verbose)
 void print_stepresult(StepResult step);
 
 
-Design Chain::run(int maxiter,bool verbose)
+bool Chain::run(int maxiter,bool verbose)
 /* 
    Runs this current chain and returns the final design.
 
@@ -139,8 +139,12 @@ Design Chain::run(int maxiter,bool verbose)
     }
 
   }
-  
-  return design;
+
+  // Install the final design as result
+  this->result_design = new Design(design); // Make a copy of the design so that it doesn't get removed.
+  //this->result_design->print();
+
+  return true;
   
 }
 

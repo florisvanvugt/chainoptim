@@ -7,6 +7,7 @@ This is an experimental design.
 #include <stdio.h>
 #include <cstdlib>
 #include "aux.hpp"
+#include <fstream>
 
 
 namespace ublas = boost::numeric::ublas;
@@ -310,3 +311,15 @@ void printmoves(std::vector<Move> moves)
 }
 
 
+
+
+
+void Design::to_afni_file(const char* fname)
+/* Write the final design to an AFNI-style output file. */
+{
+  ublas::vector<double> stimtimes = this->get_trial_onsets();
+  std::string outdata = floatvec2str(stimtimes,(char*)" ");
+  std::ofstream dat(fname);
+  dat<<"1D: "<<outdata<<"\n";
+  dat.close();
+}

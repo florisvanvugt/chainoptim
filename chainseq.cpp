@@ -46,6 +46,12 @@ unsigned random_seed = time(NULL);
 /* Verbose output */
 bool verbose = false;
 
+/* AFNI-style 1D output file with stimulus times. */
+std::string afniout="";
+
+/* Write the final design matrix to an output file. */
+std::string xout="";
+
 
 
 void deal_with_cl(int argc, char* argv[])
@@ -74,6 +80,12 @@ void deal_with_cl(int argc, char* argv[])
     ("hrf",
      po::value<std::string>(&hrf)->default_value("gam"),
      "hypothesised HRF function")
+    ("1d",
+     po::value<std::string>(&afniout)->default_value(""),
+     "write the stimulus times to an AFNI-style output file")
+    ("Xout",
+     po::value<std::string>(&xout)->default_value(""),
+     "write the design matrix to an output file")
     ("polort",
      po::value<int>(&npolort)->default_value(npolort),
      "number of orthogonal Legendre polynomials to use")
@@ -98,7 +110,13 @@ void deal_with_cl(int argc, char* argv[])
     verbose = true;
   }
 
-  
+  /* Convert hrf to lower case */
+  std::transform(hrf.begin(), hrf.end(), hrf.begin(), ::tolower);
+  if (!(hrf=="gam")) {
+    std::cout<<"Unknown HRF '"<<hrf<<"'\n";
+    exit(EXIT_FAILURE);
+  }
+ 
   if (!vm.count("ntp")) {
     printf("You need to set the number of time points (--ntp)\n");
     exit(EXIT_FAILURE);
@@ -153,38 +171,29 @@ int main(int argc, char* argv[])
   /* Preliminaries */
   srand (random_seed);
 
+  /* Initiate the chain */
   Chain chain(ntrials,ntp,TR,trial_duration,npolort,hrf);
-  chain.run(maxiter,verbose);
+  bool success = chain.run(maxiter,verbose);
 
-  std::cout<<"completed.\n";;
-  /*
-  Design design(ntrials,TR,trial_duration);
+  if (success) {
+    // Look at output
+    std::cout<<"completed.\n";;
+    //chain.result_design->print();
+    
+    if (afniout!="") {
+      /* Write the stimulus times to an AFNI-style output file */
+      chain.result_design->to_afni_file(afniout.c_str());
+    }
 
-  int n_null_trs = ntp-(ntrials*trial_duration);
-  design.randomise(n_null_trs);
+    if (xout!="") {
+      /* Write the final design matrix to an output file */
+      ublas::matrix<double> X;
+      X = chain.result_design->get_matrix(hrf,ntp,TR,npolort);
+      matrix_to_file(X,xout.c_str(),(char*)" ");
 
-  design.print();
-  printf("Trial onsets:\n");
-  design.print_trial_onsets();
-  printf("\n");
+    }
 
-  IRF* irf = design.get_irf(hrf);
-  ublas::vector<float> scantimes = scalmult(arange(0,ntp),TR);
-  std::cout<< "Scan times:" << floatvec2str(scantimes," ") << "\n";
-  ublas::vector<float> scans = irf->evaluate(scantimes);
-  std::cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
-
-  // Write to a file
-  std::ofstream myfile;
-  myfile.open ("scanBOLD.txt");
-  myfile << "scan.BOLD\n" << floatvec2str(scans,"\n");
-  myfile.close();
-  
-  //ublas::matrix<float> mat = design.get_matrix(hrf,ntp,TR,npolort);
-
-  // Now let's calculate efficiency
-  std::cout << "Efficiency: " << design.get_efficiency(hrf,ntp,TR,npolort)<<"\n";
-  */
+  }
   
   return 0;
   

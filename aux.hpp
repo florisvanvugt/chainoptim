@@ -12,8 +12,9 @@ ublas::vector<double> scalmult(ublas::vector<int> vect, double scalar);
 
 ublas::matrix<double> polort(int npolort, ublas::vector<double> times);
 
-void matrix_to_file(ublas::matrix<double> mat, char* fname, char* delim);
+void matrix_to_file(ublas::matrix<double> mat,const char* fname,char* delim);
 
 bool MInvBoost(matrix<double> InputMatrix, matrix<double> &InverseMatrix);
 
 int randint(int range);
+

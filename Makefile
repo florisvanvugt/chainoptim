@@ -24,7 +24,7 @@ $(objects): %.o: %.cpp
 
 
 test: chainseq
-	./chainseq --ntp 50 --tr 1.6 --ntrials 3 --trial_duration 2 --randomseed 873
+	./chainseq --ntp 50 --tr 1.6 --ntrials 3 --trial_duration 2 --randomseed 873 --1d afniout.1d --Xout mat.txt
 
 simpletest: chainseq
 	./chainseq --ntp 12 --tr 3.3 --ntrials 2 --trial_duration 2
@@ -53,17 +53,10 @@ develdoc: development_notes.html
 
 clean:
 	rm -f chainseq
-	rm *.o
+	rm -f *.o
 	rm -f tmp.*
 	rm -f *~
 	rm -f readme.html
 	rm -f readme.txt
 	rm -f development_notes.html
-
-
-
-
-
-
-
 
