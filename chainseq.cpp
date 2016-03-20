@@ -40,10 +40,11 @@ int npolort = 3;
 /* The maximum number of iterations we will try, after which we terminate the chain. (-1 means there is no maximum) */
 int maxiter = -1;
 
-
 /* initialize random seed: */
 unsigned random_seed = time(NULL);
 
+/* Verbose output */
+bool verbose = false;
 
 
 
@@ -56,6 +57,8 @@ void deal_with_cl(int argc, char* argv[])
   desc.add_options()
     ("help",
      "produce help message")
+    ("verbose",
+     "print verbose output to the screen")
     ("ntp",
      po::value<int>(&ntp),
      "number of volume acquisitions")
@@ -91,6 +94,11 @@ void deal_with_cl(int argc, char* argv[])
     exit(EXIT_SUCCESS);
   }
 
+  if (vm.count("verbose")) {
+    verbose = true;
+  }
+
+  
   if (!vm.count("ntp")) {
     printf("You need to set the number of time points (--ntp)\n");
     exit(EXIT_FAILURE);
@@ -127,6 +135,7 @@ void pre_report()
   std::cout << "  Trial duration (# of TRs):  "<<trial_duration<<"\n";
   std::cout << "  Hypothesis HRF:             "<<hrf<<"\n";
   std::cout << "  # of orthogonal polys:      "<<npolort<<"\n";
+  std::cout << "  Max # of iterations:        "<<maxiter<<"\n";
   std::cout << "----------------------------------------\n";
 }
 
@@ -145,8 +154,9 @@ int main(int argc, char* argv[])
   srand (random_seed);
 
   Chain chain(ntrials,ntp,TR,trial_duration,npolort,hrf);
-  chain.run(maxiter);
-  
+  chain.run(maxiter,verbose);
+
+  std::cout<<"completed.\n";;
   /*
   Design design(ntrials,TR,trial_duration);
 

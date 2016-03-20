@@ -30,11 +30,11 @@ private:
   int npolort;
   int trial_duration;
   std::string hrftype;
-  StepResult step( Design *current );
+  StepResult step( Design *current, bool verbose );
 
 public:
   Chain(int ntrials,int ntp,float TR,int trial_duration,int npolort,std::string hrftype);
-  Design run(int maxiter);
+  Design run(int maxiter,bool verbose);
 
 };
 

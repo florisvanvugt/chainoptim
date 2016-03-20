@@ -24,7 +24,7 @@ Chain::Chain(int ntrials,
 
 
 
-StepResult Chain::step(Design* current)
+StepResult Chain::step(Design* current,bool verbose)
 /* Performs one step in the iteration process:
    takes the current design and its efficiency and looks 
    for moves that improve upon it.
@@ -35,11 +35,12 @@ StepResult Chain::step(Design* current)
 
   /* First find the efficiency of our current design. */
   double efficiency = current->get_efficiency(this->hrftype,this->ntp,this->TR,this->npolort);
-  std::cout<<"Current efficiency: "<<efficiency<<"\n";
+  if (verbose)
+    std::cout<<"Current efficiency: "<<efficiency<<"\n";
   
   /* Find possible moves (null-TRs that we can move left or right) */
   std::vector<Move> moves = current->find_moves(this->hrftype,this->ntp,this->npolort);
-  printmoves(moves);
+  if (verbose) printmoves(moves);
   StepResult step;
   step.n_move_opportunities = moves.size();
 
@@ -84,7 +85,7 @@ StepResult Chain::step(Design* current)
 void print_stepresult(StepResult step);
 
 
-Design Chain::run(int maxiter)
+Design Chain::run(int maxiter,bool verbose)
 /* 
    Runs this current chain and returns the final design.
 
@@ -98,28 +99,42 @@ Design Chain::run(int maxiter)
   int n_null_trs = ntp-(this->ntrials*this->trial_duration);
   design.randomise(n_null_trs);
 
-  std::cout<<"\n\nInitiating chain\n";
-  std::cout<<"Initial design:\n";
-  design.print();
-
+  if (verbose) {
+    std::cout<<"\nRunning in verbose mode.\n";
+    std::cout<<"\n\nInitiating chain\n";
+    std::cout<<"Initial design:\n";
+    design.print();
+  }
+  
   bool keep_going = true;
   int iteration=1;
   while (keep_going) {
 
-    std::cout<<"\nITERATION "<<iteration<<"\n\n";
-    StepResult step = this->step(&design);
-    print_stepresult(step);
-
+    if (verbose) {
+      std::cout<<"\nITERATION "<<iteration<<"\n\n";
+    } else {
+      std::cout<<".";
+    }
+    StepResult step = this->step(&design,verbose);
+    if (verbose) {
+      print_stepresult(step);
+    }
+    
     if (step.n_improving_moves>0) {
       // delete *design; // Get rid of the "old" design TODO
       // Take this as the new design
       design = *(step.performed_move.result);
     } else {
+      if (verbose) {
+	std::cout<<"No more improving moves.\n";
+      }
       keep_going = false;
     }
     iteration++;
     if ((maxiter>-1) && (iteration>maxiter)) {
-      std::cout<<"Reached maximum number of iterations ("<<maxiter<<")\n";
+      if (verbose) {
+	std::cout<<"Reached maximum number of iterations ("<<maxiter<<")\n";
+      }
       keep_going = false;
     }
 
