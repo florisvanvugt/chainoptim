@@ -239,7 +239,7 @@ double Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
 
 
 
-std::vector<Move> Design::findMoves()
+std::vector<Move> Design::find_moves(std::string hrf,int ntp,int npolort)
 /* 
 Find the possible moves (moving around null-TRs) for this design,
 and calculates what the efficiency of the resulting designs are.
@@ -247,31 +247,50 @@ and calculates what the efficiency of the resulting designs are.
 {
   std::vector<Move> moves;
   Move move;
+
+  /* First build an inventory of possible moves, without
+     actually trying them */
   for (unsigned i=0; i<this->nulltrs.size(); ++i) {
     if (this->nulltrs[i]>0) {
-      if (i>0) {
+      if (i>0)
 	// We can move it to the left
-	// TODO: should we somehow make a "new" move?
-	move = Move();
-	move.location = i;
-	move.direction = -1;
-	move.efficiency = 0;
-	moves.push_back( move );
-      }
-      if (i<this->nulltrs.size()-1) {
-	move = Move();
-	move.location = i;
-	move.direction = +1;
-	move.efficiency = 0;
-	moves.push_back( move );
+	moves.push_back( try_move(i,-1,hrf,ntp,npolort) );
+      if (i<this->nulltrs.size()-1)
 	// We can move it to the right
-      }
+	moves.push_back( try_move(i,+1,hrf,ntp,npolort) );
     }
   }
+  
   return moves;
 }
 
 
+
+
+Design* Design::move(int location,int direction)
+/* Return a copy of the current design but with a particular move applied. */
+{
+  Design* moved = new Design(*this);
+  // Now apply the move
+  moved->nulltrs[location]-=1;
+  moved->nulltrs[location+direction]+=1;
+  /* TODO: Make sure we copy everything relevant from the old design */
+  return moved;
+}
+
+
+
+Move Design::try_move(int location,int direction,
+		      std::string hrf,int ntp,int npolort
+		      )
+/* Try a particular move (changing the location of null TRs)
+   and see what the new efficiency is. Return this is a move. */
+{
+  Move move = Move(location,direction);
+  Design* manip = this->move(location,direction);
+  move.result = manip; /* Set this pointer */
+  return move;
+}
 
 
 
@@ -281,7 +300,9 @@ void printmoves(std::vector<Move> moves)
 {
   std::cout<<"Moves: [";
   for (unsigned i=0; i<moves.size(); ++i) {
-    std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->"<<moves[i].efficiency<<" ";
+    //std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->"<<moves[i].efficiency<<" ";
+    std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->";
+    moves[i].result->print();
   }
   std::cout<<"]\n";
 }

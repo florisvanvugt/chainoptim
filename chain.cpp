@@ -36,7 +36,7 @@ Design Chain::run()
   
   this->efficiency = design.get_efficiency(this->hrftype,this->ntp,this->TR,this->npolort);
 
-  std::vector<Move> moves = design.findMoves();
+  std::vector<Move> moves = design.find_moves(this->hrftype,this->ntp,this->npolort);
   printmoves(moves);
 
   // TODO: get possible moves

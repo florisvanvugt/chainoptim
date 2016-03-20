@@ -6,12 +6,19 @@
 using namespace boost::numeric::ublas;
 
 
+class Design;
+
 // Declare a type for a move (small change in a design)
-typedef struct {
+typedef struct Move {
   int location; // the null-TR location
   int direction; // where to move to: -1 means to move one back, +1 means to move one forward.
 
-  double efficiency; // the efficiency after applying this move
+  Design* result; // the resulting design (when this move is performed)
+  Move(): location(-1), direction(0) {};
+  Move(int loc, int dir) {
+    location=loc;
+    direction=dir;
+  };
 } Move;
 void printmoves(std::vector<Move> moves);
 
@@ -34,7 +41,10 @@ public:
   IRF* get_irf(std::string hrftype); // This should probably be private later on
   double get_efficiency(std::string hrftype,int ntp,float TR,int npolort);
   matrix<double> get_matrix(std::string hrftype,int ntp,float TR,int npolort);
-  std::vector<Move> findMoves();
+  
+  std::vector<Move> find_moves(std::string hrf,int ntp,int npolort);
+  Design* move(int location,int direction);
+  Move try_move(int location,int direction,std::string hrf,int ntp,int npolort);
 };
 
 
