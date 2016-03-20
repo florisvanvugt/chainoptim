@@ -12,7 +12,7 @@
 namespace ublas = boost::numeric::ublas;
 
 
-std::string floatvec2str(ublas::vector<float> vec,const char* delim) {
+std::string floatvec2str(ublas::vector<double> vec,const char* delim) {
   // Source
   // http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
   
@@ -21,7 +21,7 @@ std::string floatvec2str(ublas::vector<float> vec,const char* delim) {
     {
       // Convert all but the last element to avoid a trailing ","
       std::copy(vec.begin(), vec.end()-1,
-		std::ostream_iterator<float>(oss, delim));
+		std::ostream_iterator<double>(oss, delim));
       // Now add the last element with no delimiter
       oss << *vec.rbegin();
     }
@@ -68,10 +68,10 @@ ublas::vector<int> arange(int start, int end)
 }
 
 
-ublas::vector<float> scalmult(ublas::vector<int> vect, float scalar) 
-/* Scalar multiplication of an int vector to yield a float vector. */
+ublas::vector<double> scalmult(ublas::vector<int> vect, double scalar) 
+/* Scalar multiplication of an int vector to yield a double vector. */
 {
-  ublas::vector<float> v(vect.size());
+  ublas::vector<double> v(vect.size());
   for (unsigned i=0; i<vect.size(); ++i) {
     v[i] = vect[i]*scalar;
   }
@@ -82,7 +82,7 @@ ublas::vector<float> scalmult(ublas::vector<int> vect, float scalar)
 
 
 
-ublas::matrix<float> polort(int npolort, ublas::vector<float> times)
+ublas::matrix<double> polort(int npolort, ublas::vector<double> times)
 /* 
    Returns an orthonormal Legendre basis.
    Also reserves space for a first empty column where we can
@@ -102,12 +102,12 @@ ublas::matrix<float> polort(int npolort, ublas::vector<float> times)
     Source: https://en.wikipedia.org/wiki/Legendre_polynomials
   */
 
-  ublas::matrix<float> mat(times.size(),npolort+2); // +2 because npolort=0 means we add one (constant) column
+  ublas::matrix<double> mat(times.size(),npolort+2); // +2 because npolort=0 means we add one (constant) column
   
   /* Now let's go fill up the columns one by one */
-  float minval = *std::min_element( times.begin(), times.end() );
-  float maxval = *std::max_element( times.begin(), times.end() );
-  //float x;
+  double minval = *std::min_element( times.begin(), times.end() );
+  double maxval = *std::max_element( times.begin(), times.end() );
+  //double x;
 
   for (unsigned j=0; j<times.size(); ++j)
     mat(j,0) = -1; // Leave the first column empty: we are going to stick our regressor of interest in there.
@@ -140,10 +140,10 @@ ublas::matrix<float> polort(int npolort, ublas::vector<float> times)
 	mat(j,n+1) = 2*((times[j]-minval)/(maxval-minval))-1;
       } else { // Higher-order polynomial (n = order)
 	// Note that mat(j,2) equals x (by definition)
-	float n1 = (((2*(float)n-1)/(float)n));
-	float n2 = ((float)n-1)/(float)n;
-	float a = n1 * mat(j,2) * mat(j,n);
-	float b = n2 * mat(j,n-1);
+	double n1 = (((2*(double)n-1)/(double)n));
+	double n2 = ((double)n-1)/(double)n;
+	double a = n1 * mat(j,2) * mat(j,n);
+	double b = n2 * mat(j,n-1);
 	//std::cout<<a<<" "<<b;
 	mat(j,n+1) = a - b;
       }
@@ -162,7 +162,7 @@ ublas::matrix<float> polort(int npolort, ublas::vector<float> times)
 
    For testing, code to output the polort matrix to a file:
    
-   ublas::matrix<float> mat = polort(npolort,scantimes);
+   ublas::matrix<double> mat = polort(npolort,scantimes);
    char *outf = (char*)"mat.txt";
    char *delim = (char*)" ";
    matrix_to_file(mat,outf,delim);
@@ -192,13 +192,13 @@ void matrix_to_file(ublas::matrix<double> mat, char* fname, char* delim)
 
 // Simplied header for matrices of doubles only, no other types allowed
 // Source: http://www.volopta.com/ComputerCode/CPlusPlus/Matrix_Operations_Boost.cpp
-bool MInvBoost(ublas::matrix<float> InputMatrix, ublas::matrix<float> &InverseMatrix)
+bool MInvBoost(ublas::matrix<double> InputMatrix, ublas::matrix<double> &InverseMatrix)
 /* Usage: make sure you have defined and allocated the matrices Input and Inverse before you call this. */
 {
   // Create a duplicate of the input matrix
   //std::cout<<"Defining";
   int N = InputMatrix.size1();
-  ublas::matrix<float> A = InputMatrix;
+  ublas::matrix<double> A = InputMatrix;
 
   //std::cout<<"Perm";
   
@@ -208,7 +208,7 @@ bool MInvBoost(ublas::matrix<float> InputMatrix, ublas::matrix<float> &InverseMa
   
   //std::cout<<"Assign";
   // Assign the identity matrix to the inverse
-  InverseMatrix.assign(ublas::identity_matrix<float>(N));
+  InverseMatrix.assign(ublas::identity_matrix<double>(N));
   
   //std::cout<<"Factorise";
   //	LU factorization and substitution

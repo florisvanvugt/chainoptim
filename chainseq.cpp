@@ -16,7 +16,7 @@ namespace po = boost::program_options; // For command-line options
 
 
 /* The version number */
-const char *VERSION = "0.01";
+const char *VERSION = "0.05";
 
 
 /* The number of volumes (measurements) */

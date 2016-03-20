@@ -17,6 +17,10 @@
 ### Compare efficiency calculations with 3dDeconvolve
 You can automatically generate the 3dDeconvolve code to facilitate this.
 
+### Make sure I destroy whatever objects I create
+Free memory!
+
+### Make sure all precision is in doubles, never casted back to floats
 
 
 ### Implementing multiple events

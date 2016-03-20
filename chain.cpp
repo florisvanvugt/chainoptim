@@ -23,21 +23,28 @@ Chain::Chain(int ntrials,
 
 
 
-void Chain::run() {
+Design Chain::run()
+/* Runs this current chain and returns the final design */
+{
 
   Design design(this->ntrials,this->TR,this->trial_duration);
-  //this->current = *design;
   
   int n_null_trs = ntp-(this->ntrials*this->trial_duration);
   design.randomise(n_null_trs);
 
+  design.print();
+  
   this->efficiency = design.get_efficiency(this->hrftype,this->ntp,this->TR,this->npolort);
+
+  std::vector<Move> moves = design.findMoves();
+  printmoves(moves);
 
   // TODO: get possible moves
 
   // Decide which moves improve
 
   // Perform the move...
+  return design;
   
 }
 

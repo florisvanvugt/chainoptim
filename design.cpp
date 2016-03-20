@@ -70,7 +70,7 @@ void Design::randomise(int n_null_tp)
 
 
 
-ublas::vector<float> Design::get_trial_onsets()
+ublas::vector<double> Design::get_trial_onsets()
 /* 
    Returns the trial onsets of the given design.
    
@@ -78,7 +78,7 @@ ublas::vector<float> Design::get_trial_onsets()
    tr : the TR duration (in seconds) 
 */
 {
-  ublas::vector<float> trialtimes(this->ntrials);
+  ublas::vector<double> trialtimes(this->ntrials);
   int preceding_trs = 0;
   for (int i=0; i<this->ntrials; ++i) {
     preceding_trs += this->nulltrs[i];
@@ -107,7 +107,7 @@ std::string Design::trial_onsets()
 /* Returns the trial onset times for this design. */
 {
   // Source: http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
-  ublas::vector<float> vec = this->get_trial_onsets();
+  ublas::vector<double> vec = this->get_trial_onsets();
   return floatvec2str(vec,delim);
 }
 
@@ -158,13 +158,13 @@ ublas::matrix<double> Design::get_matrix(std::string hrftype,
 {
   /* First get the regressor of interest, namely the predicted BOLD response */
   IRF* irf = this->get_irf(hrftype);
-  ublas::vector<float> scantimes = scalmult(arange(0,ntp),TR);
-  //std::cout<< "Scan times:" << floatvec2str(scantimes," ") << "\n";
-  ublas::vector<float> scans = irf->evaluate(scantimes);
-  //std::cout<< "Scan values:" << floatvec2str(scans," ") << "\n";
+  ublas::vector<double> scantimes = scalmult(arange(0,ntp),TR);
+  //std::cout<< "Scan times:" << doublevec2str(scantimes," ") << "\n";
+  ublas::vector<double> scans = irf->evaluate(scantimes);
+  //std::cout<< "Scan values:" << doublevec2str(scans," ") << "\n";
 
   /* Now get the remaining orthogonal polynomials */
-  ublas::matrix<float> X = polort(npolort,scantimes);
+  ublas::matrix<double> X = polort(npolort,scantimes);
   // Stick our regressor of interest into the design matrix first column
   for (unsigned i=0; i<scans.size(); ++i) {
     X(i,0) = scans[i];
@@ -177,7 +177,7 @@ ublas::matrix<double> Design::get_matrix(std::string hrftype,
 
 
 
-float Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
+double Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
 /* 
    Calculate the efficiecny of this design.
 
@@ -189,10 +189,10 @@ float Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
  */
 {
   /* Get our design matrix */
-  ublas::matrix<float> X = this->get_matrix(hrftype,ntp,TR,npolort);
+  ublas::matrix<double> X = this->get_matrix(hrftype,ntp,TR,npolort);
 
   /* Now perform the statistical magic of inverting and all. */
-  float eff = 0.0;
+  double eff = 0.0;
 
   // Now let's get the efficiency... exciting!
   /* 
@@ -202,7 +202,7 @@ float Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
 
   // Define the contrast vector
   //# the contrast: for now we're just interested in the regressor associated with our neural activity.
-  ublas::vector<float> contr(npolort+2);
+  ublas::vector<double> contr(npolort+2);
   for (int i=0; i<npolort+2; ++i) {
     if (i==0) { 
       contr[i]=1; 
@@ -212,13 +212,13 @@ float Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
   };
 
   // Compute X'X
-  ublas::matrix<float> XX = ublas::prod(ublas::trans(X),X);  
+  ublas::matrix<double> XX = ublas::prod(ublas::trans(X),X);  
 
   //std::cout<<"made XX";
   //matrix_to_file(XX,(char*)"tmp.XX.txt",(char*)" ");
 
   // Now invert XX
-  ublas::matrix<float> XXinv(XX.size1(),XX.size2());
+  ublas::matrix<double> XXinv(XX.size1(),XX.size2());
   bool res = MInvBoost(XX,XXinv); //= ublas::invert(XX);
   if (not res) {
     //std::cout<<"Error inverting matrix.\n";
@@ -226,11 +226,64 @@ float Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
   }
   //  std::cout<<"inverted XX";
 
-  ublas::vector<float> XXinvc = ublas::prod(XXinv,contr);
+  ublas::vector<double> XXinvc = ublas::prod(XXinv,contr);
 
-  float nsd = sqrt( ublas::inner_prod(contr,XXinvc) );
+  double nsd = sqrt( ublas::inner_prod(contr,XXinvc) );
   eff = 1/nsd;
 
   return eff;
 
 }
+
+
+
+
+
+std::vector<Move> Design::findMoves()
+/* 
+Find the possible moves (moving around null-TRs) for this design,
+and calculates what the efficiency of the resulting designs are.
+*/
+{
+  std::vector<Move> moves;
+  Move move;
+  for (unsigned i=0; i<this->nulltrs.size(); ++i) {
+    if (this->nulltrs[i]>0) {
+      if (i>0) {
+	// We can move it to the left
+	// TODO: should we somehow make a "new" move?
+	move = Move();
+	move.location = i;
+	move.direction = -1;
+	move.efficiency = 0;
+	moves.push_back( move );
+      }
+      if (i<this->nulltrs.size()-1) {
+	move = Move();
+	move.location = i;
+	move.direction = +1;
+	move.efficiency = 0;
+	moves.push_back( move );
+	// We can move it to the right
+      }
+    }
+  }
+  return moves;
+}
+
+
+
+
+
+
+void printmoves(std::vector<Move> moves)
+/* Prints a list of moves to standard out. */
+{
+  std::cout<<"Moves: [";
+  for (unsigned i=0; i<moves.size(); ++i) {
+    std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->"<<moves[i].efficiency<<" ";
+  }
+  std::cout<<"]\n";
+}
+
+
