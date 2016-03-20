@@ -150,14 +150,15 @@ bool Chain::run(int maxiter,bool verbose)
 
     if (verbose) {
       std::cout<<"\nITERATION "<<iteration<<"\n\n";
-    } else {
-      std::cout<<".";
-    }
+    };
     StepResult step = this->step(&design,verbose);
     if (verbose) {
       print_stepresult(step);
     }
-    
+
+    std::cout<<" "<<step.n_improving_moves;
+    std::cout.flush();
+
     if (step.n_improving_moves>0) {
       // delete *design; // Get rid of the "old" design TODO
       // Take this as the new design

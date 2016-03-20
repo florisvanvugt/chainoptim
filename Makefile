@@ -24,9 +24,16 @@ $(objects): %.o: %.cpp
 
 
 test: chainseq
-	./chainseq --ntp 50 --tr 1.6 --ntrials 3 --trial_duration 2 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 6 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+
 
 simpletest: chainseq
+	./chainseq --ntp 50 --tr 1.6 --ntrials 3 --trial_duration 2 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+
+
+
+
+verysimpletest: chainseq
 	./chainseq --ntp 12 --tr 3.3 --ntrials 2 --trial_duration 2
 
 
