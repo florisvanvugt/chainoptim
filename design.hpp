@@ -14,8 +14,9 @@ typedef struct Move {
   int direction; // where to move to: -1 means to move one back, +1 means to move one forward.
 
   Design* result; // the resulting design (when this move is performed)
-  Move(): location(-1), direction(0) {};
-  Move(int loc, int dir) {
+  double efficiency; // the efficiency of the resulting design.
+  Move(): location(-1), direction(0), efficiency(-1) {};
+  Move(int loc, int dir) : efficiency(-1) {
     location=loc;
     direction=dir;
   };

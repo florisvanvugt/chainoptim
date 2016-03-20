@@ -289,6 +289,7 @@ Move Design::try_move(int location,int direction,
   Move move = Move(location,direction);
   Design* manip = this->move(location,direction);
   move.result = manip; /* Set this pointer */
+  move.efficiency = manip->get_efficiency(hrf,ntp,this->tr,npolort);
   return move;
 }
 
@@ -298,11 +299,12 @@ Move Design::try_move(int location,int direction,
 void printmoves(std::vector<Move> moves)
 /* Prints a list of moves to standard out. */
 {
-  std::cout<<"Moves: [";
+  std::cout<<"Moves: [\n";
   for (unsigned i=0; i<moves.size(); ++i) {
     //std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->"<<moves[i].efficiency<<" ";
     std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->";
     moves[i].result->print();
+    std::cout<<"\t eff "<<moves[i].efficiency<<"\n";
   }
   std::cout<<"]\n";
 }

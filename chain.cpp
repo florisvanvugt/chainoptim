@@ -39,11 +39,13 @@ Design Chain::run()
   std::vector<Move> moves = design.find_moves(this->hrftype,this->ntp,this->npolort);
   printmoves(moves);
 
-  // TODO: get possible moves
-
-  // Decide which moves improve
+  // TODO Decide which moves improve
 
   // Perform the move...
+
+  // TODO Destroy the other objects (that we are not moving into)
+
+  
   return design;
   
 }
