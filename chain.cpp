@@ -1,5 +1,7 @@
 
 
+#include <sstream>
+#include <fstream>
 
 #include "chain.hpp"
 #include "aux.hpp"
@@ -10,7 +12,8 @@ Chain::Chain(int ntrials,
 	     float TR,
 	     int trial_duration,
 	     int npolort,
-	     std::string hrftype
+	     std::string hrftype,
+	     std::string move_choose
 	     ) 
 {
   this->ntrials        = ntrials;
@@ -19,6 +22,7 @@ Chain::Chain(int ntrials,
   this->hrftype        = hrftype;
   this->ntp            = ntp;
   this->npolort        = npolort;
+  this->move_choose    = move_choose;
 }
 
 
@@ -50,12 +54,18 @@ StepResult Chain::step(Design* current,bool verbose)
   std::vector<Move> candidates;
   std::vector<Move>::iterator it;
   int nkept = 0;
+  double besteff = 0.0; // the best efficiency found so far
   for (it=moves.begin(); it<moves.end(); it++) {
     /* If this move increases efficiency... */
     if (it->efficiency > efficiency) {
       //std::cout<<"Keeping";
       candidates.push_back(*it);
       nkept += 1;
+
+      /* If this is as good as we've ever had it, update */
+      if (it->efficiency>besteff) {
+	besteff = it->efficiency;
+      }
     } else {
       delete (it->result); // Clear the memory taken up by the design that we are not going in to
     }
@@ -64,7 +74,33 @@ StepResult Chain::step(Design* current,bool verbose)
   step.n_improving_moves = nkept;
   
   if (nkept>0) {
-  
+
+    if (move_choose=="max") {
+
+      /* If we only choose the maximum, let's restrict our choices
+	 to the candidates achieving the maximum efficiency.
+	 Note that in principle there may be multiple moves that
+	 yield the maximum efficiency, in which case we'll choose
+	 randomly from among those. */
+      std::vector<Move> bestcands;
+      if (verbose) {
+	std::cout<<"Restricting to best candidates\n";
+      }
+      nkept = 0; // go back to square 1
+      for (it=candidates.begin(); it<candidates.end(); it++) {
+	/* If this move increases efficiency... */
+	if (it->efficiency == besteff) {
+	  //std::cout<<"Keeping";
+	  bestcands.push_back(*it);
+	  nkept++;
+	}
+      }
+      candidates = bestcands;
+      if (verbose) {
+	std::cout<<"Kept "<<candidates.size()<<"candidates.\n";
+      }
+    }
+    
     // Choose a move from among the candidates
     int chosen = randint(nkept);
     
@@ -107,7 +143,9 @@ bool Chain::run(int maxiter,bool verbose)
   }
   
   bool keep_going = true;
-  int iteration=1;
+  iteration=1;
+  history.clear();
+
   while (keep_going) {
 
     if (verbose) {
@@ -137,6 +175,7 @@ bool Chain::run(int maxiter,bool verbose)
       }
       keep_going = false;
     }
+    history.push_back(step);
 
   }
 
@@ -156,4 +195,24 @@ void print_stepresult(StepResult step)
 {
   std::cout<<"Step: improv "<<step.n_improving_moves<<" / "<<step.n_move_opportunities<<" opportunities.\n";
   //step.performed_move.result.print();
+}
+
+
+
+
+void Chain::history_to_file(const char* fname)
+/* 
+   Write the history of this chain (the iterations) to a file.
+*/
+{
+  std::ofstream dat(fname);
+  unsigned i=0;
+  std::vector<StepResult>::iterator iter;
+  std::vector<StepResult> hist = this->history;
+  dat<<"iteration n.move.opportunities n.improving.moves efficiency\n";
+  for(iter=hist.begin() ; iter < hist.end(); iter++,i++ ) {
+    dat<<i<<" "<<(*iter).n_move_opportunities<<" "<<(*iter).n_improving_moves<<" "<<(*iter).performed_move.efficiency;
+    dat<<std::endl;
+  }
+  dat.close();
 }

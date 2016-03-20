@@ -30,12 +30,17 @@ private:
   int npolort;
   int trial_duration;
   std::string hrftype;
+  std::string move_choose;
   StepResult step( Design *current, bool verbose );
+  std::vector<StepResult> history; // Keeps track of the iterations we performed
 
 public:
-  Chain(int ntrials,int ntp,float TR,int trial_duration,int npolort,std::string hrftype);
+  Chain(int ntrials,int ntp,float TR,int trial_duration,int npolort,std::string hrftype,std::string move_choose);
   bool run(int maxiter,bool verbose);
   Design * result_design;
+  int iteration;
+  void history_to_file(const char* fname);
+  
 };
 
 

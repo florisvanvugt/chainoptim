@@ -43,6 +43,9 @@ int maxiter = -1;
 /* initialize random seed: */
 unsigned random_seed = time(NULL);
 
+/* How to choose the movement at each iteration: randomly from all movements that improve or always take the maximum. */
+std::string move_choose = "random";
+
 /* Verbose output */
 bool verbose = false;
 
@@ -51,6 +54,9 @@ std::string afniout="";
 
 /* Write the final design matrix to an output file. */
 std::string xout="";
+
+/* Write a listing of the iterations */
+std::string history="";
 
 
 
@@ -80,12 +86,18 @@ void deal_with_cl(int argc, char* argv[])
     ("hrf",
      po::value<std::string>(&hrf)->default_value("gam"),
      "hypothesised HRF function")
+    ("choose",
+     po::value<std::string>(&move_choose)->default_value(move_choose),
+     "how to choose from the possible movements at each iteration: 'max' or 'random'")
     ("1d",
      po::value<std::string>(&afniout)->default_value(""),
      "write the stimulus times to an AFNI-style output file")
     ("Xout",
      po::value<std::string>(&xout)->default_value(""),
      "write the design matrix to an output file")
+    ("history",
+     po::value<std::string>(&history)->default_value(""),
+     "write a history file of the iterations")
     ("polort",
      po::value<int>(&npolort)->default_value(npolort),
      "number of orthogonal Legendre polynomials to use")
@@ -110,7 +122,15 @@ void deal_with_cl(int argc, char* argv[])
     verbose = true;
   }
 
-  /* Convert hrf to lower case */
+  /* Convert movement-choose parameter and check its value. */
+  std::transform(move_choose.begin(), move_choose.end(), move_choose.begin(), ::tolower);
+  if (!(move_choose=="random" || move_choose=="max")) {
+    std::cout<<"Unknown movement choice strategy '"<<move_choose<<"'\n";
+    exit(EXIT_FAILURE);
+  }
+
+  
+  /* Convert hrf to lower case and check its value */
   std::transform(hrf.begin(), hrf.end(), hrf.begin(), ::tolower);
   if (!(hrf=="gam")) {
     std::cout<<"Unknown HRF '"<<hrf<<"'\n";
@@ -154,6 +174,7 @@ void pre_report()
   std::cout << "  Hypothesis HRF:             "<<hrf<<"\n";
   std::cout << "  # of orthogonal polys:      "<<npolort<<"\n";
   std::cout << "  Max # of iterations:        "<<maxiter<<"\n";
+  std::cout << "  Movement choice:            "<<move_choose<<"\n";
   std::cout << "----------------------------------------\n";
 }
 
@@ -172,12 +193,12 @@ int main(int argc, char* argv[])
   srand (random_seed);
 
   /* Initiate the chain */
-  Chain chain(ntrials,ntp,TR,trial_duration,npolort,hrf);
+  Chain chain(ntrials,ntp,TR,trial_duration,npolort,hrf,move_choose);
   bool success = chain.run(maxiter,verbose);
 
   if (success) {
     // Look at output
-    std::cout<<"completed.\n";;
+    std::cout<<"completed "<<chain.iteration<<" iterations.\n";;
     //chain.result_design->print();
     
     if (afniout!="") {
@@ -190,9 +211,14 @@ int main(int argc, char* argv[])
       ublas::matrix<double> X;
       X = chain.result_design->get_matrix(hrf,ntp,TR,npolort);
       matrix_to_file(X,xout.c_str(),(char*)" ");
-
     }
 
+    if (history!="") {
+      /* Write the final design matrix to an output file */
+      chain.history_to_file(history.c_str());
+    }
+
+    
   }
   
   return 0;

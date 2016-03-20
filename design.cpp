@@ -45,7 +45,7 @@ void Design::randomise(int n_null_tp)
    the number of null TRs at random positions.
 */
 {
-  std::cout<<"Randomly allocating "<<n_null_tp<<" null TRs\n";
+  //std::cout<<"Randomly allocating "<<n_null_tp<<" null TRs\n";
 
   // First make sure we empty the null TR list (just in case)
   for (int i=0; i<this->ntrials+1; ++i) {
