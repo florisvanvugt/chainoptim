@@ -14,6 +14,11 @@
 
 ## TODO
 
+### Compare efficiency calculations with 3dDeconvolve
+You can automatically generate the 3dDeconvolve code to facilitate this.
+
+
+
 ### Implementing multiple events
 This is the same as for a single event, except that we now have two steps:
 1. first decide the order between events, by putting all in a flat list and shuffling it.

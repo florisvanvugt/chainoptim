@@ -4,7 +4,7 @@ CC      = g++
 CFLAGS  = -I. -Wall
 LDFLAGS = -lboost_program_options
 
-objects = gamirf.o  aux.o design.o chainseq.o
+objects = gamirf.o aux.o design.o chain.o chainseq.o
 
 
 chainseq: $(objects)
@@ -12,13 +12,14 @@ chainseq: $(objects)
 	$(CC) -o chainseq $(objects) $(LDFLAGS)
 
 # Some dependencies
-design.o: aux.o irf.hpp gamirf.o
+#design.o: aux.o irf.hpp gamirf.o
+
+#chain.o: design.o
 
 #gamirf.o: irf.o
 
 $(objects): %.o: %.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
-
 
 
 

@@ -5,7 +5,7 @@
 #include <boost/program_options.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
-#include <design.hpp>
+#include <chain.hpp>
 #include <aux.hpp>
 
 
@@ -138,6 +138,10 @@ int main(int argc, char* argv[])
   /* Preliminaries */
   srand (random_seed);
 
+  Chain chain(ntrials,ntp,TR,trial_duration,npolort,hrf);
+  chain.run();
+  
+  /*
   Design design(ntrials,TR,trial_duration);
 
   int n_null_trs = ntp-(ntrials*trial_duration);
@@ -164,6 +168,7 @@ int main(int argc, char* argv[])
 
   // Now let's calculate efficiency
   std::cout << "Efficiency: " << design.get_efficiency(hrf,ntp,TR,npolort)<<"\n";
+  */
   
   return 0;
   
