@@ -57,6 +57,7 @@ StepResult Chain::step(Design* current,
   if (verbose) printmoves(moves);
   StepResult step;
   step.n_move_opportunities = moves.size();
+  step.efficiency = efficiency;
 
   /*
     Decide which moves improve, throw away the others.
@@ -234,7 +235,7 @@ void Chain::history_to_file(const char* fname)
   std::vector<StepResult> hist = this->history;
   dat<<"iteration n.move.opportunities n.improving.moves efficiency\n";
   for(iter=hist.begin() ; iter < hist.end(); iter++,i++ ) {
-    dat<<i<<" "<<(*iter).n_move_opportunities<<" "<<(*iter).n_improving_moves<<" "<<(*iter).performed_move.efficiency;
+    dat<<i<<" "<<(*iter).n_move_opportunities<<" "<<(*iter).n_improving_moves<<" "<<(*iter).efficiency;
     dat<<std::endl;
   }
   dat.close();

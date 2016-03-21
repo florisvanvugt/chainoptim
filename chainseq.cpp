@@ -16,7 +16,7 @@ namespace po = boost::program_options; // For command-line options
 
 
 /* The version number */
-const char *VERSION = "0.4";
+const char *VERSION = "0.45";
 
 
 /* The number of volumes (measurements) */
@@ -30,6 +30,9 @@ int ntrials;
 
 /* The duration of a trial (in # of TRs) */
 int trial_duration;
+
+/* The duration of a trial (in seconds) */
+float trial_duration_sec;
 
 /* The hypothesised HRF function */
 std::string hrf = "gam";
@@ -81,8 +84,8 @@ void deal_with_cl(int argc, char* argv[])
      po::value<int>(&ntrials),
      "number of trials")
     ("trial_duration",
-     po::value<int>(&trial_duration),
-     "duration of a trial (in # of TRs)")
+     po::value<float>(&trial_duration_sec),
+     "duration of a trial (sec)")
     ("hrf",
      po::value<std::string>(&hrf)->default_value("gam"),
      "hypothesised HRF function")
@@ -152,6 +155,19 @@ void deal_with_cl(int argc, char* argv[])
   if (!vm.count("trial_duration")) {
     printf("You need to set the trial duration (--trial_duration)");
     exit(EXIT_FAILURE);
+  } else {
+
+    // Check whether trial duration is divisible by TR
+    float rem = fmod(trial_duration_sec,TR);
+    if (abs(rem)>.001) {
+      std::cout<<"The trial duration needs to be a multiple of the volume acquisition time. Remainder "<<rem<<" sec.\n";
+      exit(EXIT_FAILURE);
+    }
+
+    // Compute trial duration as # of TRs.
+    trial_duration = trial_duration_sec/TR;
+
+    
   }
 
 }
@@ -170,6 +186,7 @@ void pre_report()
   std::cout << "  # time points:              "<<ntp<<"\n";
   std::cout << "  TR (sec):                   "<<TR<<"\n";
   std::cout << "  # trials:                   "<<ntrials<<"\n";
+  std::cout << "  Trial duration (sec):       "<<trial_duration_sec<<"\n";
   std::cout << "  Trial duration (# of TRs):  "<<trial_duration<<"\n";
   std::cout << "  Hypothesis HRF:             "<<hrf<<"\n";
   std::cout << "  # of orthogonal polys:      "<<npolort<<"\n";

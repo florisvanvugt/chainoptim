@@ -14,15 +14,18 @@
 
 ## TODO
 
-### Compare efficiency calculations with 3dDeconvolve
+* Compare efficiency calculations with 3dDeconvolve
 You can automatically generate the 3dDeconvolve code to facilitate this.
 
-### Make sure I destroy whatever objects I create
+* Make sure I destroy whatever objects I create
 Free memory!
 
-### Make sure all precision is in doubles, never casted back to floats
+* Make sure all precision is in doubles, never casted back to floats
 
-### Don't rebuild X matrix every time
+* Make trials no longer TR-locked and add "granularity of time"
+
+* Allow nulltrs to jump a whole block of trials (i.e. you can move across multiple rows of zeroes).
+This may allow merging of mini blocks into bigger blocks.
 
 
 

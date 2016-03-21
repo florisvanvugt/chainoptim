@@ -14,6 +14,7 @@
 
 
 typedef struct StepResult {
+  float efficiency; // the efficiency at the *beginning* of this step.
   int n_move_opportunities;
   int n_improving_moves;
   Move performed_move;

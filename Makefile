@@ -22,9 +22,28 @@ $(objects): %.o: %.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
 
+# Automatically build a list of dependencies
+# (using g++ -MM)
+# source: http://stackoverflow.com/questions/2394609/makefile-header-dependencies
+SRCS = *.cpp	
+
+depend: .depend
+
+.depend: $(SRCS)
+	rm -f ./.depend
+	$(CC) $(CFLAGS) -MM $^ > ./.depend;
+
+include .depend
+
+
+
 
 test: chainseq
-	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 6 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 4.392 --polort 4 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+
+# To check against 3dDeconvolve:
+# 3dDeconvolve -nodata 800 0.732 -polort 4 -num_stimts 1 -stim_times 1 afniout.1d GAM
+
 
 
 simpletest: chainseq
@@ -66,4 +85,5 @@ clean:
 	rm -f readme.html
 	rm -f readme.txt 
 	rm -f development_notes.html
+	rm -f .depend
 

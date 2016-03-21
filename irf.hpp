@@ -8,7 +8,7 @@ using namespace boost::numeric::ublas;
 /* This is an abstract class that tells us */
 class IRF {
 public:
-  virtual vector<float> evaluate(vector<float> t) = 0; // 'pure virtual' function, meaning that it must be overriden in a derived class.
+  virtual vector<double> evaluate(vector<float> t) = 0; // 'pure virtual' function, meaning that it must be overriden in a derived class.
 };
 
 
@@ -16,7 +16,7 @@ public:
 class GAM : public IRF {
 public:
   GAM(vector<float> trialtimes);
-  vector<float> evaluate(vector<float> t); // overriding the base
+  vector<double> evaluate(vector<float> t); // overriding the base
 private:
   vector<float> trialtimes;
 };
