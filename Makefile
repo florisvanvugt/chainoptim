@@ -1,7 +1,7 @@
 default: run
 
 CC      = g++
-CFLAGS  = -I. -Wall
+CFLAGS  = -I. -Wall -Wextra -Wpedantic
 LDFLAGS = -lboost_program_options
 
 objects = gamirf.o aux.o design.o chain.o chainseq.o
@@ -28,7 +28,7 @@ test: chainseq
 
 
 simpletest: chainseq
-	./chainseq --ntp 50 --tr 1.6 --ntrials 3 --trial_duration 2 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+	./chainseq --ntp 50 --tr 1.6 --ntrials 3 --trial_duration 2 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt --verbose --maxiter 3
 
 
 

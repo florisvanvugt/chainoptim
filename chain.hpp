@@ -31,7 +31,21 @@ private:
   int trial_duration;
   std::string hrftype;
   std::string move_choose;
-  StepResult step( Design *current, bool verbose );
+
+  StepResult step(Design* current,bool verbose,ublas::vector<double> &scantimes,ublas::matrix<double> &baselineX);
+  /* Performs one step in the iteration process:
+     takes the current design and its efficiency and looks 
+     for moves that improve upon it.
+     Then it performs one move that improves and sets 
+     the corresponding (updated) design.
+     
+     Arguments
+     current : the current design (from the previous iteration step)
+     verbose : whether to give verbose output
+     scantimes : a vector of times at which scans take place
+     baselineX : a design matrix with all the baseline regressors but without the regressor of interest
+  */
+
   std::vector<StepResult> history; // Keeps track of the iterations we performed
 
 public:

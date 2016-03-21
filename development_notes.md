@@ -22,6 +22,10 @@ Free memory!
 
 ### Make sure all precision is in doubles, never casted back to floats
 
+### Don't rebuild X matrix every time
+
+
+
 
 ### Implementing multiple events
 This is the same as for a single event, except that we now have two steps:

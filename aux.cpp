@@ -233,3 +233,58 @@ int randint(int range)
   // http://www.cplusplus.com/reference/cstdlib/rand/
   return rand()%range;
 }
+
+
+
+
+
+
+
+
+
+
+
+double efficiency_for_design(ublas::matrix<double> &X,unsigned regressor)
+{
+  /* Now perform the statistical magic of inverting and all. */
+
+  // Now let's get the efficiency... exciting!
+  /* 
+     Definition of efficiency:
+     https://afni.nimh.nih.gov/pub/dist/edu/2007_11_extra_3day/pdf_handouts/ExptDsgn.pdf 
+  */
+  double eff;
+
+  // Define the contrast vector
+  //# the contrast: for now we're just interested in the regressor associated with our neural activity.
+  ublas::vector<double> contr(X.size2());
+  for (unsigned i=0; i<X.size2(); ++i) {
+    if (i==regressor) { 
+      contr[i]=1; 
+    } else { 
+      contr[i]=0; 
+    };
+  };
+
+  // Compute X'X
+  ublas::matrix<double> XX = ublas::prod(ublas::trans(X),X);  
+
+  //std::cout<<"made XX";
+  //matrix_to_file(XX,(char*)"tmp.XX.txt",(char*)" ");
+
+  // Now invert XX
+  ublas::matrix<double> XXinv(XX.size1(),XX.size2());
+  bool res = MInvBoost(XX,XXinv); //= ublas::invert(XX);
+  if (not res) {
+    //std::cout<<"Error inverting matrix.\n";
+    exit(EXIT_FAILURE);
+  }
+  //  std::cout<<"inverted XX";
+
+  ublas::vector<double> XXinvc = ublas::prod(XXinv,contr);
+
+  double nsd = sqrt( ublas::inner_prod(contr,XXinvc) );
+  eff = 1/nsd;
+
+  return eff;
+}

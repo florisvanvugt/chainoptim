@@ -87,7 +87,7 @@ ublas::vector<double> Design::get_trial_onsets()
     preceding_trs += trial_duration;
   }
   return (trialtimes);
-};
+}
 
 
 
@@ -141,6 +141,29 @@ IRF* Design::get_irf(std::string hrftype)
 
 
 
+void Design::add_irf_to_design_matrix(std::string hrftype,int ntp,float TR,ublas::matrix<double> &X)
+{
+  /* First get the regressor of interest, namely the predicted BOLD response */
+  ublas::vector<double> scantimes = scalmult(arange(0,ntp),TR);
+  //std::cout<< "Scan times:" << doublevec2str(scantimes," ") << "\n";
+  this->add_irf_to_design_matrix(hrftype,scantimes,X);
+}
+
+
+
+void Design::add_irf_to_design_matrix(std::string hrftype,ublas::vector<double> &scantimes,ublas::matrix<double> &X) 
+{
+  IRF* irf = this->get_irf(hrftype);
+  ublas::vector<double> scans = irf->evaluate(scantimes);
+  //std::cout<< "Scan values:" << doublevec2str(scans," ") << "\n";
+  // Stick our regressor of interest into the design matrix first column
+  for (unsigned i=0; i<scans.size(); ++i) {
+    X(i,0) = scans[i];
+  }
+}
+
+
+
 
 
 ublas::matrix<double> Design::get_matrix(std::string hrftype,
@@ -157,19 +180,15 @@ ublas::matrix<double> Design::get_matrix(std::string hrftype,
    npolort : number of orthogonal polynomials to use
 */
 {
+
   /* First get the regressor of interest, namely the predicted BOLD response */
-  IRF* irf = this->get_irf(hrftype);
   ublas::vector<double> scantimes = scalmult(arange(0,ntp),TR);
-  //std::cout<< "Scan times:" << doublevec2str(scantimes," ") << "\n";
-  ublas::vector<double> scans = irf->evaluate(scantimes);
-  //std::cout<< "Scan values:" << doublevec2str(scans," ") << "\n";
 
   /* Now get the remaining orthogonal polynomials */
   ublas::matrix<double> X = polort(npolort,scantimes);
-  // Stick our regressor of interest into the design matrix first column
-  for (unsigned i=0; i<scans.size(); ++i) {
-    X(i,0) = scans[i];
-  }
+
+  // Add the regressor of interest to the matrix.
+  this->add_irf_to_design_matrix(hrftype,ntp,TR,X);
 
   return X;
   
@@ -178,69 +197,22 @@ ublas::matrix<double> Design::get_matrix(std::string hrftype,
 
 
 
-double Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
-/* 
-   Calculate the efficiecny of this design.
 
-   Arguments
-   hrftype : hypothesised HRF (e.g. "gam")
-   ntp : number of time points (scans)
-   TR : duration of volume acquisition (in seconds)
-   npolort : number of orthogonal polynomials to use
- */
+double Design::get_efficiency(std::string hrftype,int ntp,float TR,int npolort)
 {
   /* Get our design matrix */
   ublas::matrix<double> X = this->get_matrix(hrftype,ntp,TR,npolort);
-
-  /* Now perform the statistical magic of inverting and all. */
-  double eff = 0.0;
-
-  // Now let's get the efficiency... exciting!
-  /* 
-     Definition of efficiency:
-     https://afni.nimh.nih.gov/pub/dist/edu/2007_11_extra_3day/pdf_handouts/ExptDsgn.pdf 
-  */
-
-  // Define the contrast vector
-  //# the contrast: for now we're just interested in the regressor associated with our neural activity.
-  ublas::vector<double> contr(npolort+2);
-  for (int i=0; i<npolort+2; ++i) {
-    if (i==0) { 
-      contr[i]=1; 
-    } else { 
-      contr[i]=0; 
-    };
-  };
-
-  // Compute X'X
-  ublas::matrix<double> XX = ublas::prod(ublas::trans(X),X);  
-
-  //std::cout<<"made XX";
-  //matrix_to_file(XX,(char*)"tmp.XX.txt",(char*)" ");
-
-  // Now invert XX
-  ublas::matrix<double> XXinv(XX.size1(),XX.size2());
-  bool res = MInvBoost(XX,XXinv); //= ublas::invert(XX);
-  if (not res) {
-    //std::cout<<"Error inverting matrix.\n";
-    exit(EXIT_FAILURE);
-  }
-  //  std::cout<<"inverted XX";
-
-  ublas::vector<double> XXinvc = ublas::prod(XXinv,contr);
-
-  double nsd = sqrt( ublas::inner_prod(contr,XXinvc) );
-  eff = 1/nsd;
-
-  return eff;
-
+  return this->get_efficiency(hrftype,ntp,TR,X);
 }
 
 
 
 
 
-std::vector<Move> Design::find_moves(std::string hrf,int ntp,int npolort)
+
+std::vector<Move> Design::try_moves(std::string hrf,
+				    ublas::vector<double> &scantimes,
+				    ublas::matrix<double> &baselineX)
 /* 
 Find the possible moves (moving around null-TRs) for this design,
 and calculates what the efficiency of the resulting designs are.
@@ -255,10 +227,10 @@ and calculates what the efficiency of the resulting designs are.
     if (this->nulltrs[i]>0) {
       if (i>0)
 	// We can move it to the left
-	moves.push_back( try_move(i,-1,hrf,ntp,npolort) );
+	moves.push_back( this->try_move(i,-1,hrf,scantimes,baselineX) );
       if (i<this->nulltrs.size()-1)
 	// We can move it to the right
-	moves.push_back( try_move(i,+1,hrf,ntp,npolort) );
+	moves.push_back( this->try_move(i,+1,hrf,scantimes,baselineX) );
     }
   }
   
@@ -281,18 +253,56 @@ Design* Design::move(int location,int direction)
 
 
 
+/*Move Design::try_move(int location,int direction,std::string hrf,int ntp,int npolort) */
 Move Design::try_move(int location,int direction,
-		      std::string hrf,int ntp,int npolort
-		      )
+		      std::string hrftype,
+		      ublas::vector<double> &scantimes,
+		      ublas::matrix<double> &baselineX)
 /* Try a particular move (changing the location of null TRs)
    and see what the new efficiency is. Return this is a move. */
 {
+  /* Make a new move object to tell the world about what came out. */
   Move move = Move(location,direction);
+
+  /* Perform the move in the design, which will return a new design object with the move applied. */
   Design* manip = this->move(location,direction);
   move.result = manip; /* Set this pointer */
-  move.efficiency = manip->get_efficiency(hrf,ntp,this->tr,npolort);
+
+  /* Now calculate the efficiency */
+  manip->add_irf_to_design_matrix(hrftype,scantimes,baselineX);
+  move.efficiency = efficiency_for_design(baselineX,0);
+
   return move;
 }
+
+
+
+
+
+double Design::get_efficiency(std::string hrftype,ublas::vector<double> &scantimes,ublas::matrix<double> &baselineX) 
+{
+  /* Stick the regressor of interest into the baselineX matrix (this modifies the baselineX matrix).*/
+  this->add_irf_to_design_matrix(hrftype,scantimes,baselineX);
+  
+  /* Now calculate the efficiency */
+  double eff = efficiency_for_design(baselineX,0);
+  return eff;
+}
+
+
+
+double Design::get_efficiency(std::string hrftype,int ntp,float TR,ublas::matrix<double> &baselineX)
+{
+  /* Calculate when the scan times occur */
+  ublas::vector<double> scantimes = scalmult(arange(0,ntp),TR);
+  return this->get_efficiency(hrftype,scantimes,baselineX);
+}
+
+
+
+
+
+
 
 
 

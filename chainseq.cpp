@@ -16,7 +16,7 @@ namespace po = boost::program_options; // For command-line options
 
 
 /* The version number */
-const char *VERSION = "0.05";
+const char *VERSION = "0.4";
 
 
 /* The number of volumes (measurements) */
@@ -185,6 +185,7 @@ void pre_report()
 
 int main(int argc, char* argv[])
 {
+  std::cout<<"Chain fMRI event-related design optimiser v"<<VERSION<<"\n";
   deal_with_cl(argc,argv);
 
   pre_report();

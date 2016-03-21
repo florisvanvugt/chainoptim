@@ -28,22 +28,32 @@ Chain::Chain(int ntrials,
 
 
 
-StepResult Chain::step(Design* current,bool verbose)
+StepResult Chain::step(Design* current,
+		       bool verbose,
+		       ublas::vector<double> &scantimes,
+		       ublas::matrix<double> &baselineX)
 /* Performs one step in the iteration process:
    takes the current design and its efficiency and looks 
    for moves that improve upon it.
    Then it performs one move that improves and sets 
    the corresponding (updated) design.
+
+   Arguments
+   current : the current design (from the previous iteration step)
+   verbose : whether to give verbose output
+   scantimes : a vector of times at which scans take place
+   baselineX : a design matrix with all the baseline regressors but without the regressor of interest
 */
 {
 
   /* First find the efficiency of our current design. */
-  double efficiency = current->get_efficiency(this->hrftype,this->ntp,this->TR,this->npolort);
+  double efficiency = current->get_efficiency(this->hrftype,this->ntp,this->TR,baselineX);
   if (verbose)
     std::cout<<"Current efficiency: "<<efficiency<<"\n";
+  // TODO: we don't have to re-calculate the efficiency because we just calculated it in the previous step.
   
   /* Find possible moves (null-TRs that we can move left or right) */
-  std::vector<Move> moves = current->find_moves(this->hrftype,this->ntp,this->npolort);
+  std::vector<Move> moves = current->try_moves(this->hrftype,scantimes,baselineX);
   if (verbose) printmoves(moves);
   StepResult step;
   step.n_move_opportunities = moves.size();
@@ -121,6 +131,8 @@ StepResult Chain::step(Design* current,bool verbose)
 void print_stepresult(StepResult step);
 
 
+
+
 bool Chain::run(int maxiter,bool verbose)
 /* 
    Runs this current chain and returns the final design.
@@ -141,22 +153,32 @@ bool Chain::run(int maxiter,bool verbose)
     std::cout<<"Initial design:\n";
     design.print();
   }
+
+  /* Prepare a vector with the time points of the scans so that we also don't have to re-calculate that every time */
+  ublas::vector<double> scantimes = scalmult(arange(0,this->ntp),this->TR);
+
+  /* Prepare a matrix with baseline regressors so that we don't have to calculate that anew every time */
+  ublas::matrix<double> baselineX = polort(this->npolort,scantimes);
+
   
   bool keep_going = true;
   iteration=1;
   history.clear();
-
+  
   while (keep_going) {
 
     if (verbose) {
       std::cout<<"\nITERATION "<<iteration<<"\n\n";
     };
-    StepResult step = this->step(&design,verbose);
+
+    /* Perform the step */
+    StepResult step = this->step(&design,verbose,scantimes,baselineX);
+
     if (verbose) {
       print_stepresult(step);
-    }
-
-    std::cout<<" "<<step.n_improving_moves;
+    } else {
+      std::cout<<iteration<<" ("<<step.n_improving_moves<<") ";
+    };
     std::cout.flush();
 
     if (step.n_improving_moves>0) {

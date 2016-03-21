@@ -3,7 +3,7 @@
 
 #include "irf.hpp"
 
-using namespace boost::numeric::ublas;
+namespace ublas = boost::numeric::ublas;
 
 
 class Design;
@@ -12,7 +12,7 @@ class Design;
 typedef struct Move {
   int location; // the null-TR location
   int direction; // where to move to: -1 means to move one back, +1 means to move one forward.
-
+  
   Design* result; // the resulting design (when this move is performed)
   double efficiency; // the efficiency of the resulting design.
   Move(): location(-1), direction(0), efficiency(-1) {};
@@ -39,14 +39,54 @@ public:
   vector<double> get_trial_onsets();
   void print_trial_onsets();
   std::string trial_onsets();
-  IRF* get_irf(std::string hrftype); // This should probably be private later on
+  IRF * get_irf(std::string hrftype); // This should probably be private later on
+
+  /* These functions compute the efficiency of the design.
+     You can either supply a design matrix ready-made, 
+     or else it will build this for you. */
   double get_efficiency(std::string hrftype,int ntp,float TR,int npolort);
-  matrix<double> get_matrix(std::string hrftype,int ntp,float TR,int npolort);
+  double get_efficiency(std::string hrftype,int ntp,float TR,ublas::matrix<double> &X);
+  double get_efficiency(std::string hrftype,ublas::vector<double> &scantimes,ublas::matrix<double> &baselineX);
+  /* Careful: the design matrix X is given but it doesn't have the first column (corresponding to the regressor of interest) filled out. */
+  /* 
+   Calculate the efficiency of this design.
+   
+   Arguments
+   hrftype : hypothesised HRF (e.g. "gam")
+   ntp : number of time points (scans)
+   TR : duration of volume acquisition (in seconds)
+   npolort : number of orthogonal polynomials to use
+  */
+
+  void add_irf_to_design_matrix(std::string hrftype,int ntp,float TR,ublas::matrix<double> &X);
+  void add_irf_to_design_matrix(std::string hrftype,ublas::vector<double> &scantimes,ublas::matrix<double> &X);
+  /* Takes an existing design matrix and sticks in the IRF as the first regressor. The typical
+     usage of this function will be that you first build a matrix with baseline regressors and then
+     you only need to stick in this regressor.*/
+    
+
+  ublas::matrix<double> get_matrix(ublas::vector<double> &scantimes);
+  /* Constructs a design matrix for the given scantimes */
+
+  ublas::matrix<double> get_matrix(std::string hrftype,int ntp,float TR,int npolort);
+  /* DEPRECATED */
+
   void to_afni_file(const char* fname);
-  
-  std::vector<Move> find_moves(std::string hrf,int ntp,int npolort);
-  Design* move(int location,int direction);
-  Move try_move(int location,int direction,std::string hrf,int ntp,int npolort);
+
+  /* Find possible moves, tries them, and returns the efficiency */
+  std::vector<Move> try_moves(std::string hrf,
+			      ublas::vector<double> &scantimes,
+			      ublas::matrix<double> &baselineX);
+  Move try_move(int location,int direction,
+		std::string hrf,
+		ublas::vector<double> &scantimes,
+		ublas::matrix<double> &baselineX);
+  //Move try_move(int location,int direction,std::string hrf,int ntp,int npolort);
+
+  /* Move the nullTR at the given location in the given direction.
+     For example, move(5,-1) moves one nullTR at location 5 to the left (-1) */
+  Design* move(int location,int direction); 
+
 };
 
 
