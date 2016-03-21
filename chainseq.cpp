@@ -7,6 +7,7 @@
 
 #include <chain.hpp>
 #include <aux.hpp>
+#include <time.h>
 
 
 namespace ublas = boost::numeric::ublas;
@@ -16,7 +17,7 @@ namespace po = boost::program_options; // For command-line options
 
 
 /* The version number */
-const char *VERSION = "0.45";
+const char *VERSION = "0.5";
 
 
 /* The number of volumes (measurements) */
@@ -210,14 +211,22 @@ int main(int argc, char* argv[])
   /* Preliminaries */
   srand (random_seed);
 
+
+  clock_t tStart = clock();
+
   /* Initiate the chain */
   Chain chain(ntrials,ntp,TR,trial_duration,npolort,hrf,move_choose);
   bool success = chain.run(maxiter,verbose);
 
+  clock_t tEnd = clock();
+
   if (success) {
     // Look at output
     std::cout<<"completed "<<chain.iteration<<" iterations.\n";;
-    std::cout<<"Efficiency: "<<chain.history.back().efficiency<<"\n";;
+    std::cout<<"Final efficiency: "<<chain.history.back().efficiency<<"\n";;
+    /* Do your stuff here */
+    std::cout<<"Time taken: " << (double)(tEnd - tStart)/CLOCKS_PER_SEC <<" sec.\n";
+
     //chain.result_design->print();
     
     if (afniout!="") {

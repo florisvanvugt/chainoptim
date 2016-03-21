@@ -14,10 +14,14 @@
 
 ## TODO
 
-* Compare efficiency calculations with 3dDeconvolve
+* DONE Compare efficiency calculations with 3dDeconvolve
 You can automatically generate the 3dDeconvolve code to facilitate this.
 
-* Make sure I destroy whatever objects I create
+* TODO Check how well we're doing against some randomly generated iterations.
+
+* TODO Log how much time a run took.
+
+* Make sure I destroy whatever objects I create.
 Free memory!
 
 * Make sure all precision is in doubles, never casted back to floats
@@ -26,6 +30,8 @@ Free memory!
 
 * Allow nulltrs to jump a whole block of trials (i.e. you can move across multiple rows of zeroes).
 This may allow merging of mini blocks into bigger blocks.
+
+* TODO Similarly, allow moving a whole block of nulltrs at once. This is based on the observation that the algorithm tended to fiddle with one trial at a time for a few iterations and then not touch it anymore.
 
 * Arbitrary scan times array.
 

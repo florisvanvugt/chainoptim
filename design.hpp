@@ -10,15 +10,21 @@ class Design;
 
 // Declare a type for a move (small change in a design)
 typedef struct Move {
-  int location; // the null-TR location
-  int direction; // where to move to: -1 means to move one back, +1 means to move one forward.
+  int location;   // the null-TR location
+  int direction;  // where to move to: -1 means to move one back, +1 means to move one forward.
+  int amount;     // how many null-TRs to move.
   
   Design* result; // the resulting design (when this move is performed)
   double efficiency; // the efficiency of the resulting design.
-  Move(): location(-1), direction(0), efficiency(-1) {};
-  Move(int loc, int dir) : efficiency(-1) {
+  Move(): location(-1), direction(0), amount(1), efficiency(-1) {};
+  Move(int loc, int dir) : amount(1), efficiency(-1) {
     location=loc;
     direction=dir;
+  };
+  Move(int loc, int dir, int am) : efficiency(-1) {
+    location=loc;
+    direction=dir;
+    amount=am;
   };
 } Move;
 void printmoves(std::vector<Move> moves);
@@ -77,7 +83,8 @@ public:
   std::vector<Move> try_moves(std::string hrf,
 			      ublas::vector<double> &scantimes,
 			      ublas::matrix<double> &baselineX);
-  Move try_move(int location,int direction,
+  /* Tries moving a number "amount" of nulltrs at the given location, in the given direction */
+  Move try_move(int location,int direction,int amount,
 		std::string hrf,
 		ublas::vector<double> &scantimes,
 		ublas::matrix<double> &baselineX);
@@ -85,7 +92,7 @@ public:
 
   /* Move the nullTR at the given location in the given direction.
      For example, move(5,-1) moves one nullTR at location 5 to the left (-1) */
-  Design* move(int location,int direction); 
+  Design* move(int location,int direction,int amount); 
 
 };
 

@@ -224,15 +224,25 @@ and calculates what the efficiency of the resulting designs are.
   /* First build an inventory of possible moves, without
      actually trying them */
   for (unsigned i=0; i<this->nulltrs.size(); ++i) {
-    if (this->nulltrs[i]>0) {
-      if (i>0)
+    unsigned n = this->nulltrs[i];
+    if (n>0) {
+      if (i>0) {
 	// We can move it to the left
-	moves.push_back( this->try_move(i,-1,hrf,scantimes,baselineX) );
-      if (i<this->nulltrs.size()-1)
+	moves.push_back( this->try_move(i,-1,1,hrf,scantimes,baselineX) );
+	if (n>1)
+	  // We can move the whole block of nulltrs to the left
+	  moves.push_back( this->try_move(i,-1,n,hrf,scantimes,baselineX) );
+      }
+      if (i<this->nulltrs.size()-1) {
 	// We can move it to the right
-	moves.push_back( this->try_move(i,+1,hrf,scantimes,baselineX) );
+	moves.push_back( this->try_move(i,+1,1,hrf,scantimes,baselineX) );
+	if (n>1)
+	  // We can move the whole block of nulltrs to the right
+	  moves.push_back( this->try_move(i,+1,n,hrf,scantimes,baselineX) );
+      }
     }
   }
+  /* TODO: This can certainly be made cleaner! */
   
   return moves;
 }
@@ -240,13 +250,13 @@ and calculates what the efficiency of the resulting designs are.
 
 
 
-Design* Design::move(int location,int direction)
+Design* Design::move(int location,int direction,int amount)
 /* Return a copy of the current design but with a particular move applied. */
 {
   Design* moved = new Design(*this);
   // Now apply the move
-  moved->nulltrs[location]-=1;
-  moved->nulltrs[location+direction]+=1;
+  moved->nulltrs[location]-=amount;
+  moved->nulltrs[location+direction]+=amount;
   /* TODO: Make sure we copy everything relevant from the old design */
   return moved;
 }
@@ -254,7 +264,7 @@ Design* Design::move(int location,int direction)
 
 
 /*Move Design::try_move(int location,int direction,std::string hrf,int ntp,int npolort) */
-Move Design::try_move(int location,int direction,
+Move Design::try_move(int location,int direction,int amount,
 		      std::string hrftype,
 		      ublas::vector<double> &scantimes,
 		      ublas::matrix<double> &baselineX)
@@ -262,10 +272,10 @@ Move Design::try_move(int location,int direction,
    and see what the new efficiency is. Return this is a move. */
 {
   /* Make a new move object to tell the world about what came out. */
-  Move move = Move(location,direction);
+  Move move = Move(location,direction,amount);
 
   /* Perform the move in the design, which will return a new design object with the move applied. */
-  Design* manip = this->move(location,direction);
+  Design* manip = this->move(location,direction,amount);
   move.result = manip; /* Set this pointer */
 
   /* Now calculate the efficiency */
@@ -313,7 +323,7 @@ void printmoves(std::vector<Move> moves)
   std::cout<<"Moves: [\n";
   for (unsigned i=0; i<moves.size(); ++i) {
     //std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->"<<moves[i].efficiency<<" ";
-    std::cout<<moves[i].location<<"("<<moves[i].direction<<")-->";
+    std::cout<<moves[i].location<<"("<<moves[i].direction<<") "<<moves[i].amount<<" -->";
     moves[i].result->print();
     std::cout<<"\t eff "<<moves[i].efficiency<<"\n";
   }
