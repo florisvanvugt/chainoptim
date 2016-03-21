@@ -41,6 +41,10 @@ include .depend
 test: chainseq
 	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 4.392 --polort 4 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
 
+test2: chainseq
+	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 4.392 --polort 4 --choose random --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+
+
 # To check against 3dDeconvolve:
 # 3dDeconvolve -nodata 800 0.732 -polort 4 -num_stimts 1 -stim_times 1 afniout.1d GAM
 

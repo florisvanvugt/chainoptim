@@ -27,6 +27,8 @@ Free memory!
 * Allow nulltrs to jump a whole block of trials (i.e. you can move across multiple rows of zeroes).
 This may allow merging of mini blocks into bigger blocks.
 
+* Arbitrary scan times array.
+
 
 
 

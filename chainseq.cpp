@@ -217,6 +217,7 @@ int main(int argc, char* argv[])
   if (success) {
     // Look at output
     std::cout<<"completed "<<chain.iteration<<" iterations.\n";;
+    std::cout<<"Efficiency: "<<chain.history.back().efficiency<<"\n";;
     //chain.result_design->print();
     
     if (afniout!="") {

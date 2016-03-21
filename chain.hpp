@@ -47,7 +47,6 @@ private:
      baselineX : a design matrix with all the baseline regressors but without the regressor of interest
   */
 
-  std::vector<StepResult> history; // Keeps track of the iterations we performed
 
 public:
   Chain(int ntrials,int ntp,float TR,int trial_duration,int npolort,std::string hrftype,std::string move_choose);
@@ -55,6 +54,7 @@ public:
   Design * result_design;
   int iteration;
   void history_to_file(const char* fname);
+  std::vector<StepResult> history; // Keeps track of the iterations we performed
   
 };
 

@@ -233,9 +233,10 @@ void Chain::history_to_file(const char* fname)
   unsigned i=0;
   std::vector<StepResult>::iterator iter;
   std::vector<StepResult> hist = this->history;
-  dat<<"iteration n.move.opportunities n.improving.moves efficiency\n";
+  dat<<"iteration n.move.opportunities n.improving.moves efficiency design\n";
   for(iter=hist.begin() ; iter < hist.end(); iter++,i++ ) {
     dat<<i<<" "<<(*iter).n_move_opportunities<<" "<<(*iter).n_improving_moves<<" "<<(*iter).efficiency;
+    dat<<" \""<< (*iter).performed_move.result->trial_onsets() <<"\"";
     dat<<std::endl;
   }
   dat.close();

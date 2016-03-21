@@ -330,6 +330,7 @@ void Design::to_afni_file(const char* fname)
   ublas::vector<double> stimtimes = this->get_trial_onsets();
   std::string outdata = floatvec2str(stimtimes,(char*)" ");
   std::ofstream dat(fname);
-  dat<<"1D: "<<outdata<<"\n";
+  //dat<<"1D: ";
+  dat<<outdata<<"\n";
   dat.close();
 }
