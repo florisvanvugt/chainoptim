@@ -223,24 +223,31 @@ and calculates what the efficiency of the resulting designs are.
 
   /* First build an inventory of possible moves, without
      actually trying them */
+  std::vector<unsigned> amounts;
+  std::vector<int> directions;
+  std::vector<unsigned>::iterator am;
+  std::vector<int>::iterator dr;
   for (unsigned i=0; i<this->nulltrs.size(); ++i) {
     unsigned n = this->nulltrs[i];
-    if (n>0) {
-      if (i>0) {
-	// We can move it to the left
-	moves.push_back( this->try_move(i,-1,1,hrf,scantimes,baselineX) );
-	if (n>1)
-	  // We can move the whole block of nulltrs to the left
-	  moves.push_back( this->try_move(i,-1,n,hrf,scantimes,baselineX) );
-      }
-      if (i<this->nulltrs.size()-1) {
-	// We can move it to the right
-	moves.push_back( this->try_move(i,+1,1,hrf,scantimes,baselineX) );
-	if (n>1)
-	  // We can move the whole block of nulltrs to the right
-	  moves.push_back( this->try_move(i,+1,n,hrf,scantimes,baselineX) );
+    amounts.clear();
+    if (n>0)
+      amounts.push_back(1); // we can move just one null-time unit
+    if (n>1)
+      amounts.push_back(n); // we can move all null-time units
+
+    directions.clear();
+    if (i>0)
+      directions.push_back(-1); // we can move to the left
+    if (i<this->nulltrs.size()-1)
+      directions.push_back(+1); // we can move to the right
+
+    
+    for (am=amounts.begin() ; am < amounts.end(); am++ ) {
+      for (dr=directions.begin() ; dr < directions.end(); dr++ ) {
+	moves.push_back( this->try_move(i,*dr,*am,hrf,scantimes,baselineX) );
       }
     }
+
   }
   /* TODO: This can certainly be made cleaner! */
   

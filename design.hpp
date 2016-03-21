@@ -11,8 +11,8 @@ class Design;
 // Declare a type for a move (small change in a design)
 typedef struct Move {
   int location;   // the null-TR location
-  int direction;  // where to move to: -1 means to move one back, +1 means to move one forward.
-  int amount;     // how many null-TRs to move.
+  int direction;       // where to move to: -1 means to move one back, +1 means to move one forward.
+  unsigned amount;     // how many null-TRs to move.
   
   Design* result; // the resulting design (when this move is performed)
   double efficiency; // the efficiency of the resulting design.
@@ -21,7 +21,7 @@ typedef struct Move {
     location=loc;
     direction=dir;
   };
-  Move(int loc, int dir, int am) : efficiency(-1) {
+  Move(int loc, int dir, unsigned am) : efficiency(-1) {
     location=loc;
     direction=dir;
     amount=am;
