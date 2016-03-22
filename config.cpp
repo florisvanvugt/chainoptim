@@ -23,6 +23,7 @@ namespace config {
   std::string xout="";
   std::string history="";
   bool stack_move = true;
+  bool far_move = true;
 
 }
 
@@ -46,6 +47,7 @@ void config::pre_report()
   std::cout << "  Max # of iterations:        "<<maxiter<<"\n";
   std::cout << "  Movement choice:            "<<move_choose<<"\n";
   std::cout << "  Allow stack move:           "<<stack_move<<"\n";
+  std::cout << "  Allow far move:             "<<far_move<<"\n";
   std::cout << "----------------------------------------\n";
 }
 

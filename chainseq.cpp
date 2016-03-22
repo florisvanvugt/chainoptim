@@ -67,6 +67,12 @@ void deal_with_cl(int argc, char* argv[])
     ("maxiter",
      po::value<int>(&config::maxiter),
      "maximum number of iterations to perform")
+    ("stack_move",
+     po::value<bool>(&config::stack_move)->default_value(config::stack_move),
+     "whether to allow moving a whole stack of null time at a time")
+    ("far_move",
+     po::value<bool>(&config::far_move)->default_value(config::far_move),
+     "whether to allow moving null time far away (to the next non-null time block)")
     ("randomseed",
      po::value<unsigned>(&config::random_seed),
      "seed for the random number generator")

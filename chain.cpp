@@ -99,7 +99,7 @@ StepResult Chain::step(Design* current,
       }
       candidates = bestcands;
       if (config::verbose) {
-	std::cout<<"Kept "<<candidates.size()<<"candidates.\n";
+	std::cout<<"Kept "<<candidates.size()<<" candidates.\n";
       }
     }
     
@@ -139,6 +139,7 @@ bool Chain::run()
     std::cout<<"\n\nInitiating chain\n";
     std::cout<<"Initial design:\n";
     design.print();
+    std::cout<<"\n";
   }
 
   /* Prepare a vector with the time points of the scans so that we also don't have to re-calculate that every time */

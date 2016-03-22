@@ -82,14 +82,14 @@ public:
   std::vector<Move> try_moves(ublas::vector<double> &scantimes,
 			      ublas::matrix<double> &baselineX);
   /* Tries moving a number "amount" of nulltrs at the given location, in the given direction */
-  Move try_move(int location,int direction,int amount,
+  Move try_move(int location,int target,int amount,
 		ublas::vector<double> &scantimes,
 		ublas::matrix<double> &baselineX);
   //Move try_move(int location,int direction,std::string hrf,int ntp,int npolort);
 
   /* Move the nullTR at the given location in the given direction.
      For example, move(5,-1) moves one nullTR at location 5 to the left (-1) */
-  Design* move(int location,int direction,int amount); 
+  Design* move(int location,int target,int amount); 
 
 };
 

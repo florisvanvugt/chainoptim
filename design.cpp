@@ -215,19 +215,53 @@ and calculates what the efficiency of the resulting designs are.
   std::vector<int> directions;
   std::vector<unsigned>::iterator am;
   std::vector<int>::iterator dr;
+
+  /* Ok, now we will figure out which moves we can make. */
   for (unsigned i=0; i<this->nulltrs.size(); ++i) {
+
+    /* The question is, how much can we move from the null-times at location i? */
     unsigned n = this->nulltrs[i];
     amounts.clear();
     if (n>0)
       amounts.push_back(1); // we can move just one null-time unit
-    if (n>1)
-      amounts.push_back(n); // we can move all null-time units
+    if (n>1 && config::stack_move)
+      amounts.push_back(n); // we can move all null-time units, if stack_move is allowed.
 
+    /* The next question, where can we move it to? 
+       If we are on the left edge then we can't move it there, similarly for the right edge */
     directions.clear();
-    if (i>0)
-      directions.push_back(-1); // we can move to the left
-    if (i<this->nulltrs.size()-1)
-      directions.push_back(+1); // we can move to the right
+    int target; // where we are going to move to
+    if (i>0) {
+      target = i-1;
+      directions.push_back(target); // we can move to the left
+
+      if (config::far_move) {
+	int j=target;
+	// we can move across arbitrarily large portions of space as long as we don't hit another block
+	while (j>=0 && (this->nulltrs[j]==0)) {
+	  j--;
+	}
+	if (j<0) j=0; // We may have fallen below zero
+	if (j!=target) // If this is actually not the same as i-1
+	  directions.push_back(j);
+      }
+
+    }
+    if (i<this->nulltrs.size()-1) {
+      target = i+1;
+      directions.push_back(target); // we can move to the right
+
+      if (config::far_move) {
+	int j=target;
+	// we can move across arbitrarily large portions of space as long as we don't hit another block
+	while (j<(int)nulltrs.size() && (this->nulltrs[j]==0)) {
+	  j++;
+	}
+	if (j>=(int)nulltrs.size()) j=(int)nulltrs.size()-1; // We may have considered moving outside of the array
+	if (j!=target) // If this is actually not the same as i-1
+	  directions.push_back(j);
+      }
+    }
 
     
     for (am=amounts.begin() ; am < amounts.end(); am++ ) {
@@ -244,13 +278,13 @@ and calculates what the efficiency of the resulting designs are.
 
 
 
-Design* Design::move(int location,int direction,int amount)
+Design* Design::move(int location,int target,int amount)
 /* Return a copy of the current design but with a particular move applied. */
 {
   Design* moved = new Design(*this);
   // Now apply the move
   moved->nulltrs[location]-=amount;
-  moved->nulltrs[location+direction]+=amount;
+  moved->nulltrs[target]+=amount;
   /* TODO: Make sure we copy everything relevant from the old design */
   return moved;
 }
@@ -258,17 +292,17 @@ Design* Design::move(int location,int direction,int amount)
 
 
 /*Move Design::try_move(int location,int direction,std::string hrf,int ntp,int npolort) */
-Move Design::try_move(int location,int direction,int amount,
+Move Design::try_move(int location,int target,int amount,
 		      ublas::vector<double> &scantimes,
 		      ublas::matrix<double> &baselineX)
 /* Try a particular move (changing the location of null TRs)
    and see what the new efficiency is. Return this is a move. */
 {
   /* Make a new move object to tell the world about what came out. */
-  Move move = Move(location,direction,amount);
+  Move move = Move(location,target,amount);
 
   /* Perform the move in the design, which will return a new design object with the move applied. */
-  Design* manip = this->move(location,direction,amount);
+  Design* manip = this->move(location,target,amount);
   move.result = manip; /* Set this pointer */
 
   /* Now calculate the efficiency */

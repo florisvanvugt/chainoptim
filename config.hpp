@@ -45,8 +45,19 @@ namespace config {
   /* Write a listing of the iterations */
   extern std::string history;
 
-  /* Whether we can move a whole stack at a time */
+  /* Whether we can move a whole stack of null time at a time */
   extern bool stack_move;
+
+  /* Whether we can move null time far.
+     Let me explain. If we have a set of null-time like this:
+
+     [ 15, 0, 0, 3, 0, 0, 0 ]
+     Then if far_move is enabled then we are in principle allowed to skip the 0s and make a move to this:
+     [ 14, 0, 0, 4, 0, 0, 0 ]
+     Effectively what this does is it moves trials over arbitrarily long null space.
+   */
+  extern bool far_move;
+
 
   /* Verbose output */
   extern bool verbose;
