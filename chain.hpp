@@ -10,6 +10,8 @@
 #include <string>
 
 #include <design.hpp>
+#include <config.hpp>
+
 //class Design; // Forward declaration: just tell them that this exists.
 
 
@@ -25,15 +27,8 @@ class Chain {
 
 private:
   float efficiency;
-  int ntrials;
-  float TR;
-  int ntp;
-  int npolort;
-  int trial_duration;
-  std::string hrftype;
-  std::string move_choose;
 
-  StepResult step(Design* current,bool verbose,ublas::vector<double> &scantimes,ublas::matrix<double> &baselineX);
+  StepResult step(Design* current,ublas::vector<double> &scantimes,ublas::matrix<double> &baselineX);
   /* Performs one step in the iteration process:
      takes the current design and its efficiency and looks 
      for moves that improve upon it.
@@ -49,13 +44,12 @@ private:
 
 
 public:
-  Chain(int ntrials,int ntp,float TR,int trial_duration,int npolort,std::string hrftype,std::string move_choose);
-  bool run(int maxiter,bool verbose);
+  Chain();
+  bool run();
   Design * result_design;
   int iteration;
   void history_to_file(const char* fname);
   std::vector<StepResult> history; // Keeps track of the iterations we performed
-  
 };
 
 

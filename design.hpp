@@ -2,6 +2,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include "irf.hpp"
+#include "config.hpp"
+
 
 namespace ublas = boost::numeric::ublas;
 
@@ -33,26 +35,23 @@ void printmoves(std::vector<Move> moves);
 class Design {
 
 private:
-  int ntrials;
-  float tr;
-  int trial_duration;
   vector<int> nulltrs;
   
 public:
-  Design(int ntrials,float tr,int trial_duration);
+  Design();
   void print();
-  void randomise(int n_null_tp);
+  void randomise();
   vector<double> get_trial_onsets();
   void print_trial_onsets();
   std::string trial_onsets();
-  IRF * get_irf(std::string hrftype); // This should probably be private later on
+  IRF * get_irf(); // This should probably be private later on
 
   /* These functions compute the efficiency of the design.
      You can either supply a design matrix ready-made, 
      or else it will build this for you. */
-  double get_efficiency(std::string hrftype,int ntp,float TR,int npolort);
-  double get_efficiency(std::string hrftype,int ntp,float TR,ublas::matrix<double> &X);
-  double get_efficiency(std::string hrftype,ublas::vector<double> &scantimes,ublas::matrix<double> &baselineX);
+  double get_efficiency();
+  double get_efficiency(ublas::matrix<double> &X);
+  double get_efficiency(ublas::vector<double> &scantimes,ublas::matrix<double> &baselineX);
   /* Careful: the design matrix X is given but it doesn't have the first column (corresponding to the regressor of interest) filled out. */
   /* 
    Calculate the efficiency of this design.
@@ -64,8 +63,8 @@ public:
    npolort : number of orthogonal polynomials to use
   */
 
-  void add_irf_to_design_matrix(std::string hrftype,int ntp,float TR,ublas::matrix<double> &X);
-  void add_irf_to_design_matrix(std::string hrftype,ublas::vector<double> &scantimes,ublas::matrix<double> &X);
+  void add_irf_to_design_matrix(ublas::matrix<double> &X);
+  void add_irf_to_design_matrix(ublas::vector<double> &scantimes,ublas::matrix<double> &X);
   /* Takes an existing design matrix and sticks in the IRF as the first regressor. The typical
      usage of this function will be that you first build a matrix with baseline regressors and then
      you only need to stick in this regressor.*/
@@ -74,18 +73,16 @@ public:
   ublas::matrix<double> get_matrix(ublas::vector<double> &scantimes);
   /* Constructs a design matrix for the given scantimes */
 
-  ublas::matrix<double> get_matrix(std::string hrftype,int ntp,float TR,int npolort);
+  ublas::matrix<double> get_matrix();
   /* DEPRECATED */
 
   void to_afni_file(const char* fname);
 
   /* Find possible moves, tries them, and returns the efficiency */
-  std::vector<Move> try_moves(std::string hrf,
-			      ublas::vector<double> &scantimes,
+  std::vector<Move> try_moves(ublas::vector<double> &scantimes,
 			      ublas::matrix<double> &baselineX);
   /* Tries moving a number "amount" of nulltrs at the given location, in the given direction */
   Move try_move(int location,int direction,int amount,
-		std::string hrf,
 		ublas::vector<double> &scantimes,
 		ublas::matrix<double> &baselineX);
   //Move try_move(int location,int direction,std::string hrf,int ntp,int npolort);
@@ -95,6 +92,4 @@ public:
   Design* move(int location,int direction,int amount); 
 
 };
-
-
 

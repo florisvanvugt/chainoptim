@@ -4,7 +4,7 @@ CC      = g++
 CFLAGS  = -I. -Wall -Wextra -Wpedantic
 LDFLAGS = -lboost_program_options
 
-objects = gamirf.o aux.o design.o chain.o chainseq.o
+objects = config.o gamirf.o aux.o design.o chain.o chainseq.o
 
 
 chainseq: $(objects)
@@ -40,6 +40,10 @@ include .depend
 
 test: chainseq
 	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 4.392 --polort 4 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt
+
+testverbose: chainseq
+	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 4.392 --polort 4 --choose max --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt --verbose
+
 
 test2: chainseq
 	./chainseq --ntp 800 --tr .732 --ntrials 60 --trial_duration 4.392 --polort 4 --choose random --randomseed 873 --1d afniout.1d --Xout mat.txt --history history.txt

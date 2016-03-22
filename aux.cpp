@@ -12,7 +12,7 @@
 namespace ublas = boost::numeric::ublas;
 
 
-std::string floatvec2str(ublas::vector<double> vec,const char* delim) {
+std::string floatvec2str(ublas::vector<double> &vec,const char* delim) {
   // Source
   // http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
   
@@ -32,7 +32,7 @@ std::string floatvec2str(ublas::vector<double> vec,const char* delim) {
 
 
 
-std::string intvec2str(ublas::vector<int> vec,const char* delim) {
+std::string intvec2str(ublas::vector<int> &vec,const char* delim) {
   // Source
   // http://stackoverflow.com/questions/8581832/converting-a-vector-to-string
   
@@ -173,7 +173,7 @@ ublas::matrix<double> polort(int npolort, ublas::vector<double> times)
 
 
 
-void matrix_to_file(ublas::matrix<double> mat,const char* fname,char* delim) 
+void matrix_to_file(ublas::matrix<double> &mat,const char* fname,char* delim) 
 /* Write the matrix to a file
    
    Arguments

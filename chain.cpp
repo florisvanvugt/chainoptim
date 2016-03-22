@@ -7,29 +7,15 @@
 #include "aux.hpp"
 
 
-Chain::Chain(int ntrials,
-	     int ntp,
-	     float TR,
-	     int trial_duration,
-	     int npolort,
-	     std::string hrftype,
-	     std::string move_choose
-	     ) 
+Chain::Chain()
 {
-  this->ntrials        = ntrials;
-  this->TR             = TR;
-  this->trial_duration = trial_duration;
-  this->hrftype        = hrftype;
-  this->ntp            = ntp;
-  this->npolort        = npolort;
-  this->move_choose    = move_choose;
+  this->efficiency=0.0;
 }
 
 
 
 
 StepResult Chain::step(Design* current,
-		       bool verbose,
 		       ublas::vector<double> &scantimes,
 		       ublas::matrix<double> &baselineX)
 /* Performs one step in the iteration process:
@@ -47,14 +33,19 @@ StepResult Chain::step(Design* current,
 {
 
   /* First find the efficiency of our current design. */
-  double efficiency = current->get_efficiency(this->hrftype,this->ntp,this->TR,baselineX);
-  if (verbose)
+  if (config::verbose) {
+    std::cout<<"Current design:\n";
+    current->print();
+    current->print_trial_onsets();
+  }
+  double efficiency = current->get_efficiency(scantimes,baselineX);
+  if (config::verbose)
     std::cout<<"Current efficiency: "<<efficiency<<"\n";
   // TODO: we don't have to re-calculate the efficiency because we just calculated it in the previous step.
   
   /* Find possible moves (null-TRs that we can move left or right) */
-  std::vector<Move> moves = current->try_moves(this->hrftype,scantimes,baselineX);
-  if (verbose) printmoves(moves);
+  std::vector<Move> moves = current->try_moves(scantimes,baselineX);
+  if (config::verbose) printmoves(moves);
   StepResult step;
   step.n_move_opportunities = moves.size();
   step.efficiency = efficiency;
@@ -86,7 +77,7 @@ StepResult Chain::step(Design* current,
   
   if (nkept>0) {
 
-    if (move_choose=="max") {
+    if (config::move_choose=="max") {
 
       /* If we only choose the maximum, let's restrict our choices
 	 to the candidates achieving the maximum efficiency.
@@ -94,7 +85,7 @@ StepResult Chain::step(Design* current,
 	 yield the maximum efficiency, in which case we'll choose
 	 randomly from among those. */
       std::vector<Move> bestcands;
-      if (verbose) {
+      if (config::verbose) {
 	std::cout<<"Restricting to best candidates\n";
       }
       nkept = 0; // go back to square 1
@@ -107,7 +98,7 @@ StepResult Chain::step(Design* current,
 	}
       }
       candidates = bestcands;
-      if (verbose) {
+      if (config::verbose) {
 	std::cout<<"Kept "<<candidates.size()<<"candidates.\n";
       }
     }
@@ -134,21 +125,16 @@ void print_stepresult(StepResult step);
 
 
 
-bool Chain::run(int maxiter,bool verbose)
+bool Chain::run()
 /* 
    Runs this current chain and returns the final design.
-
-   Arguments
-   maxiter : the maximum number of iterations, after which we will stop anyway even if we haven't yet exhausted all possible moves that improve the design.
 */
 {
 
-  Design design(this->ntrials,this->TR,this->trial_duration);
+  Design design;
+  design.randomise();
   
-  int n_null_trs = ntp-(this->ntrials*this->trial_duration);
-  design.randomise(n_null_trs);
-
-  if (verbose) {
+  if (config::verbose) {
     std::cout<<"\nRunning in verbose mode.\n";
     std::cout<<"\n\nInitiating chain\n";
     std::cout<<"Initial design:\n";
@@ -156,10 +142,10 @@ bool Chain::run(int maxiter,bool verbose)
   }
 
   /* Prepare a vector with the time points of the scans so that we also don't have to re-calculate that every time */
-  ublas::vector<double> scantimes = scalmult(arange(0,this->ntp),this->TR);
+  ublas::vector<double> scantimes = scalmult(arange(0,config::ntp),config::TR);
 
   /* Prepare a matrix with baseline regressors so that we don't have to calculate that anew every time */
-  ublas::matrix<double> baselineX = polort(this->npolort,scantimes);
+  ublas::matrix<double> baselineX = polort(config::npolort,scantimes);
 
   
   bool keep_going = true;
@@ -168,14 +154,14 @@ bool Chain::run(int maxiter,bool verbose)
   
   while (keep_going) {
 
-    if (verbose) {
+    if (config::verbose) {
       std::cout<<"\nITERATION "<<iteration<<"\n\n";
     };
 
     /* Perform the step */
-    StepResult step = this->step(&design,verbose,scantimes,baselineX);
+    StepResult step = this->step(&design,scantimes,baselineX);
 
-    if (verbose) {
+    if (config::verbose) {
       print_stepresult(step);
     } else {
       std::cout<<iteration<<" ("<<step.n_improving_moves<<") ";
@@ -187,15 +173,15 @@ bool Chain::run(int maxiter,bool verbose)
       // Take this as the new design
       design = *(step.performed_move.result);
     } else {
-      if (verbose) {
+      if (config::verbose) {
 	std::cout<<"No more improving moves.\n";
       }
       keep_going = false;
     }
     iteration++;
-    if ((maxiter>-1) && (iteration>maxiter)) {
-      if (verbose) {
-	std::cout<<"Reached maximum number of iterations ("<<maxiter<<")\n";
+    if ((config::maxiter>-1) && (iteration>config::maxiter)) {
+      if (config::verbose) {
+	std::cout<<"Reached maximum number of iterations ("<<config::maxiter<<")\n";
       }
       keep_going = false;
     }
@@ -204,7 +190,7 @@ bool Chain::run(int maxiter,bool verbose)
   }
 
   // Install the final design as result
-  this->result_design = new Design(design); // Make a copy of the design so that it doesn't get removed.
+  this->result_design = new Design(design); // Make a copy of the design since it seems otherwise it got removed.
   //this->result_design->print();
 
   return true;
