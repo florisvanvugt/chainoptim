@@ -36,9 +36,6 @@ namespace config {
   /* How to choose the movement at each iteration: randomly from all movements that improve or always take the maximum. */
   extern std::string move_choose;
   
-  /* Verbose output */
-  extern bool verbose;
-  
   /* AFNI-style 1D output file with stimulus times. */
   extern std::string afniout;
   
@@ -47,6 +44,12 @@ namespace config {
   
   /* Write a listing of the iterations */
   extern std::string history;
+
+  /* Whether we can move a whole stack at a time */
+  extern bool stack_move;
+
+  /* Verbose output */
+  extern bool verbose;
 
   void pre_report();
 

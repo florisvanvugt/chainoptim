@@ -22,6 +22,7 @@ namespace config {
   std::string afniout="";
   std::string xout="";
   std::string history="";
+  bool stack_move = true;
 
 }
 
@@ -44,6 +45,7 @@ void config::pre_report()
   std::cout << "  # of orthogonal polys:      "<<npolort<<"\n";
   std::cout << "  Max # of iterations:        "<<maxiter<<"\n";
   std::cout << "  Movement choice:            "<<move_choose<<"\n";
+  std::cout << "  Allow stack move:           "<<stack_move<<"\n";
   std::cout << "----------------------------------------\n";
 }
 
