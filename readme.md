@@ -3,6 +3,15 @@
 This is a tool that allows you to search for efficient MRI rapid event-related designs.
 
 
+## Build requirements
+
+```sudo apt-get install libboost-program-options-dev```
+
+
+## How to build
+
+```make```
+
 
 ## Running chainseq
 
